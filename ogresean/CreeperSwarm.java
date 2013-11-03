@@ -19,7 +19,7 @@ public class CreeperSwarm {
 	public static final String NAME = "CreeperSwarm";
 
 	public static void load(boolean isClient, Object mod) {
-		EntityRegistry.registerModEntity(EntityCreeperSwarm.class, "CreeperSwarm", 1, mod, 80, 3, true);
+		EntityRegistry.registerModEntity(EntityCreeperSwarm.class, "CreeperSwarm", 0, mod, 80, 3, true);
 		EntityRegistry.addSpawn(EntityCreeperSwarm.class, 5, 1, 1, EnumCreatureType.monster, WorldType.base11Biomes);
 		if (isClient) {
 			addRenderer();

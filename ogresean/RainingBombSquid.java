@@ -69,7 +69,7 @@ public class RainingBombSquid implements ITickHandler {
 								if (bid == Block.dirt.blockID || bid == Block.grass.blockID || bid == Block.sand.blockID || bid == Block.gravel.blockID || bid == Block.stone.blockID) {
 									EntityFallingSand efs = new EntityFallingSand(sq.worldObj, m, n, o, bid);
 									//assign random velocities
-									efs.setVelocity(world.rand.nextDouble() / 2D - 0.25D, world.rand.nextDouble() + 0.5D, world.rand.nextDouble() / 2D - 0.25D);
+									//efs.setVelocity(world.rand.nextDouble() / 2D - 0.25D, world.rand.nextDouble() + 0.5D, world.rand.nextDouble() / 2D - 0.25D);
 									for (int j = 0; j < 2 + world.rand.nextInt(3); j++) {
 										double d = world.rand.nextGaussian() * 0.02D;
 										double d1 = world.rand.nextGaussian() * 0.02D;
