@@ -27,12 +27,12 @@ public class CreeperSwarm {
 	}
 
 	public static void preLoad(Configuration config) {
-		enableCustomSpeed = config.get(NAME, "EnableCustomSpeed", enableCustomSpeed).getBoolean(true);
-		enableCustomHealth = config.get(NAME, "EnableCustomHealth", enableCustomHealth).getBoolean(true);
-		enableCustomExplosionTime = config.get(NAME, "EnableCustomExplosionTime", enableCustomExplosionTime).getBoolean(true);
-		easyMax = config.get(NAME, "MaxSpawnInEasyMode", easyMax).getInt();
-		normalMax = config.get(NAME, "MaxSpawnInNormalMode", normalMax).getInt();
-		hardMax = config.get(NAME, "MaxSpawnInHardMode", hardMax).getInt();
+		enableCustomSpeed = config.get(NAME, "Enable custom speed", enableCustomSpeed).getBoolean(true);
+		enableCustomHealth = config.get(NAME, "Enable custom health", enableCustomHealth).getBoolean(true);
+		enableCustomExplosionTime = config.get(NAME, "Enable custom explosion time", enableCustomExplosionTime).getBoolean(true);
+		easyMax = config.get(NAME, "Max spawn in easy mode", easyMax).getInt();
+		normalMax = config.get(NAME, "Max spawn in normal mode", normalMax).getInt();
+		hardMax = config.get(NAME, "Max spawn in hard mode", hardMax).getInt();
 	}
 
 	@SideOnly(Side.CLIENT)

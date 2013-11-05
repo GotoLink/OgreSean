@@ -33,7 +33,6 @@ public class Bats implements ITickHandler {
 	public static ArrayList<BBEntityBat> batsList = new ArrayList<BBEntityBat>(); //used for bat spawning
 	public static int batCount = 0; //used for bat spawning
 	public static HashMap<String, ArrayList<BBEntityBat>> assistants = new HashMap();
-	public static BiomeGenBase mobspawnerbase;
 
 	@Override
 	public String getLabel() {
@@ -55,6 +54,7 @@ public class Bats implements ITickHandler {
 
 	@Override
 	public void tickEnd(EnumSet<TickType> type, Object... tickData) {
+		onTickInGame((World) tickData[0]);
 	}
 
 	@Override
@@ -64,7 +64,6 @@ public class Bats implements ITickHandler {
 
 	@Override
 	public void tickStart(EnumSet<TickType> type, Object... tickData) {
-		onTickInGame((World) tickData[0]);
 	}
 
 	//returns base bat spawn rate depending on whether it is day or night in world
@@ -127,7 +126,10 @@ public class Bats implements ITickHandler {
 	}
 
 	protected static boolean validSpawnArea(BBEntityBat bat, int x, int y, int z) {
-		mobspawnerbase = bat.worldObj.getWorldChunkManager().getBiomeGenAt(x, z);
+		if (!bat.worldObj.isAirBlock(x, y, z)) {
+			return false;
+		}
+		BiomeGenBase mobspawnerbase = bat.worldObj.getWorldChunkManager().getBiomeGenAt(x, z);
 		return bat.getBiomeMaxY(mobspawnerbase) > y && bat.getBiomeMinY(mobspawnerbase) < y;
 	}
 
@@ -218,7 +220,7 @@ public class Bats implements ITickHandler {
 			if (!validSpawnArea(bat, x, y, z))
 				return; //check if bat can spawn in this biome and depth
 			for (int i = 0; i < bat.getMaxSpawnedInChunk(); i++) {
-				bat.setLocationAndAngles(x + world.rand.nextInt(11) - 5, y + world.rand.nextInt(5) - 2, z + world.rand.nextInt(11) - 5, world.rand.nextFloat() * 360.0F, 0.0F);
+				bat.setLocationAndAngles(x, y, z, world.rand.nextFloat() * 360.0F, 0.0F);
 				if (bat.getCanSpawnHere()) {
 					batsList.add(bat);
 					world.spawnEntityInWorld(bat);

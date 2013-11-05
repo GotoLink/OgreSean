@@ -96,7 +96,7 @@ public class BBEntityBat extends EntityLiving {
 
 	@Override
 	public boolean attackEntityFrom(DamageSource d, float i) {
-		Entity entity = d != null ? d.getEntity() : null;
+		Entity entity = d.getEntity();
 		if (batAction == 0 || batAction == 3)
 			wakeUp(batAction);
 		if (attackTarget == null && willBecomeAggressive(entity))
@@ -431,7 +431,7 @@ public class BBEntityBat extends EntityLiving {
 		if (isLooseBlock(bid)) {
 			Block.blocksList[bid].dropBlockAsItem(worldObj, i, j, k, worldObj.getBlockMetadata(bid, j, k), 0);
 			worldObj.setBlockToAir(i, j, k);
-			this.attackEntityFrom(null, 1);
+			this.attackEntityFrom(DamageSource.inWall, 1);
 		}
 	}
 
