@@ -2,8 +2,10 @@ package ogresean;
 
 import net.minecraftforge.common.Configuration;
 import ogresean.bats.Bats;
+import ogresean.talkingpig.TalkingPig;
 import cpw.mods.fml.common.Mod;
 import cpw.mods.fml.common.Mod.EventHandler;
+import cpw.mods.fml.common.Mod.Instance;
 import cpw.mods.fml.common.event.FMLInitializationEvent;
 import cpw.mods.fml.common.event.FMLPreInitializationEvent;
 import cpw.mods.fml.common.network.NetworkMod;
@@ -13,8 +15,11 @@ import cpw.mods.fml.relauncher.Side;
 @Mod(modid = "ogreseanmods", name = "OgreSean Mods", version = "0.1")
 @NetworkMod(clientSideRequired = true)
 public class OgreSeanMods {
+	@Instance("ogreseanmods")
+	public static OgreSeanMods instance;
 	private static boolean creeper;
 	private static boolean bats;
+	private static boolean pig;
 
 	@EventHandler
 	public void load(FMLInitializationEvent event) {
@@ -23,6 +28,9 @@ public class OgreSeanMods {
 		}
 		if (bats) {
 			new Bats().load(event.getSide().isClient(), this);
+		}
+		if (pig) {
+			new TalkingPig().load(event.getSide().isClient(), this);
 		}
 	}
 
@@ -43,6 +51,7 @@ public class OgreSeanMods {
 		if (bats) {
 			bats = Bats.preLoad(config);
 		}
+		pig = config.get("General", "Enable TalkingPig", true).getBoolean(true);
 		config.save();
 	}
 }
