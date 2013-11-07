@@ -12,7 +12,7 @@ public class PigGuiHandler implements IGuiHandler {
 		if (ID == 0) {
 			List<EntityTalkingPig> entities = world.getEntitiesWithinAABB(EntityTalkingPig.class, player.boundingBox.expand(5.0, 5.0, 5.0));
 			for (EntityTalkingPig pig : entities) {
-				if (pig.owner.username.equals(player.username)) {
+				if (pig.getOwnerName().equals(player.getCommandSenderName())) {
 					return new GUITalkingPig(pig);
 				}
 			}

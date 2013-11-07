@@ -478,11 +478,11 @@ public class BBEntityBat extends EntityLiving {
 			EntityPlayer ep = worldObj.getClosestPlayerToEntity(this, 20D);
 			if (ep != null) {
 				ArrayList list = new ArrayList();
-				if (Bats.assistants.containsKey(ep.username)) {
-					list = Bats.assistants.get(ep.username);
+				if (Bats.assistants.containsKey(ep.getCommandSenderName())) {
+					list = Bats.assistants.get(ep.getCommandSenderName());
 				}
 				list.add(this);
-				Bats.assistants.put(ep.username, list);
+				Bats.assistants.put(ep.getCommandSenderName(), list);
 			}
 		}
 	}

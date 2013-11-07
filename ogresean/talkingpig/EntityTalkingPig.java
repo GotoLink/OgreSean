@@ -42,7 +42,7 @@ public class EntityTalkingPig extends EntityPig {
 	public int experiencePoints; //gained via your talking pig fighting
 	public byte strength, speed, endurance, followers;
 	protected ArrayList<EntityPig> pals;
-	public EntityPlayer owner;
+	private EntityPlayer owner;
 	public float moveSpeed;
 	static final HashMap<Integer, Integer> edibleFoods = new HashMap<Integer, Integer>();
 	static final public String names[] = new String[] { "Porky", "Gordo", "Oinkers", "Cuddles", "Pinky", "Snuggles", "Rex", "Snipper", "Molly", "Bubbles", "Nanders", "Pugsy", "Pickles", "Thunder",
@@ -134,6 +134,10 @@ public class EntityTalkingPig extends EntityPig {
 		return levelMessageTimer;
 	}
 
+	public String getOwnerName() {
+		return this.dataWatcher.getWatchableObjectString(18);
+	}
+
 	@Override
 	public boolean interact(EntityPlayer entityplayer) {
 		ItemStack itemstack = entityplayer.inventory.getCurrentItem();
@@ -176,7 +180,7 @@ public class EntityTalkingPig extends EntityPig {
 			entityplayer.addChatMessage("§a<".concat(getEntityName()).concat("> §e").concat(str));
 			return true;
 		}//else if stick, show stat screen
-		else if (itemstack != null && itemstack.itemID == Item.stick.itemID && entityplayer.username.equals(owner.username)) {
+		else if (itemstack != null && itemstack.itemID == Item.stick.itemID && entityplayer.getCommandSenderName().equals(getOwnerName())) {
 			entityplayer.openGui(OgreSeanMods.instance, 0, worldObj, (int) posX, (int) posY, (int) posZ);
 			return true;
 		} else
@@ -286,7 +290,7 @@ public class EntityTalkingPig extends EntityPig {
 	@Override
 	public void readEntityFromNBT(NBTTagCompound nbttagcompound) {
 		super.readEntityFromNBT(nbttagcompound);
-		owner = this.worldObj.getPlayerEntityByName(nbttagcompound.getString("Owner"));
+		setOwner(nbttagcompound.getString("Owner"));
 		phraseTimer = nbttagcompound.getInteger("PhraseTimer");
 		recoverTimer = nbttagcompound.getInteger("RecoverTimer");
 		hunger = nbttagcompound.getInteger("Hunger");
@@ -302,6 +306,11 @@ public class EntityTalkingPig extends EntityPig {
 		moveSpeed = nbttagcompound.getFloat("MoveSpeed");
 		endurance = nbttagcompound.getByte("Endurance");
 		followers = nbttagcompound.getByte("Followers");
+	}
+
+	public void setOwner(String user) {
+		this.dataWatcher.updateObject(18, user);
+		owner = this.worldObj.getPlayerEntityByName(user);
 	}
 
 	//pig is ridable
@@ -372,7 +381,7 @@ public class EntityTalkingPig extends EntityPig {
 	@Override
 	public void writeEntityToNBT(NBTTagCompound nbttagcompound) {
 		super.writeEntityToNBT(nbttagcompound);
-		nbttagcompound.setString("Owner", owner.username);
+		nbttagcompound.setString("Owner", getOwnerName());
 		nbttagcompound.setInteger("PhraseTimer", phraseTimer);
 		nbttagcompound.setInteger("RecoverTimer", recoverTimer);
 		nbttagcompound.setInteger("Hunger", hunger);
@@ -413,6 +422,12 @@ public class EntityTalkingPig extends EntityPig {
 	@Override
 	protected boolean canDespawn() {
 		return false;
+	}
+
+	@Override
+	protected void entityInit() {
+		super.entityInit();
+		this.dataWatcher.addObject(18, "buddy");
 	}
 
 	@Override
@@ -461,11 +476,6 @@ public class EntityTalkingPig extends EntityPig {
 				}
 			}
 		}
-	}
-
-	protected String getPlayerName() {
-		String s = owner.username;
-		return s == null || s.contains("Player") ? "buddy" : s;
 	}
 
 	protected void handlePals() {
@@ -588,7 +598,7 @@ public class EntityTalkingPig extends EntityPig {
 
 	private void sayHurt(Entity entity) {
 		String str = "";
-		if (!(entity instanceof EntityPlayer) || !((EntityPlayer) entity).username.equals(owner.username)) {
+		if (!(entity instanceof EntityPlayer) || !((EntityPlayer) entity).getCommandSenderName().equals(getOwnerName())) {
 			if (getHealth() > 2 && hunger < 12000) {
 				str = hurtPhrases[rand.nextInt(hurtPhrases.length)].replace("$T$", EntityList.getEntityString(entity));
 			} else
@@ -622,10 +632,10 @@ public class EntityTalkingPig extends EntityPig {
 				break;
 			}
 		}
-		owner.addChatMessage("§a<".concat(getEntityName()).concat("> §e").concat(str.replace("$P$", getPlayerName())));
+		owner.addChatMessage("§a<".concat(getEntityName()).concat("> §e").concat(str.replace("$P$", getOwnerName())));
 	}
 
 	private void sayIdlePhrase() {
-		owner.addChatMessage("§a<".concat(getEntityName()).concat("> §e").concat(idlePhrases[rand.nextInt(idlePhrases.length)]).replace("$P$", getPlayerName()));
+		owner.addChatMessage("§a<".concat(getEntityName()).concat("> §e").concat(idlePhrases[rand.nextInt(idlePhrases.length)]).replace("$P$", getOwnerName()));
 	}
 }

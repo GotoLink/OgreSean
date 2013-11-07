@@ -157,11 +157,11 @@ public class Bats implements ITickHandler {
 			return;
 		for (Object ent : world.playerEntities) {
 			EntityPlayer ep = (EntityPlayer) ent;
-			if (!assistants.containsKey(ep.username)) {
-				assistants.put(ep.username, new ArrayList());
+			if (!assistants.containsKey(ep.getCommandSenderName())) {
+				assistants.put(ep.getCommandSenderName(), new ArrayList());
 			}
 			boolean leftClicking = ep.isSwingInProgress; //true if player holding down left mouse button
-			if (leftClicking && !assistants.get(ep.username).isEmpty()) {
+			if (leftClicking && !assistants.get(ep.getCommandSenderName()).isEmpty()) {
 				//checks to see if player's cursor is over an entity or a block
 				Vec3 vec3 = world.getWorldVec3Pool().getVecFromPool(ep.posX, ep.posY, ep.posZ);
 				Vec3 vec31 = world.getWorldVec3Pool().getVecFromPool(ep.posX + ep.motionX, ep.posY + ep.motionY, ep.posZ + ep.motionZ);
@@ -176,7 +176,7 @@ public class Bats implements ITickHandler {
 				double d0 = 0.0D;
 				for (int j = 0; j < list.size(); ++j) {
 					Entity entity1 = (Entity) list.get(j);
-					if (entity1.canBeCollidedWith() && !assistants.get(ep.username).contains(entity1)) {
+					if (entity1.canBeCollidedWith() && !assistants.get(ep.getCommandSenderName()).contains(entity1)) {
 						float f = 0.3F;
 						AxisAlignedBB axisalignedbb = entity1.boundingBox.expand(f, f, f);
 						MovingObjectPosition movingobjectposition1 = axisalignedbb.calculateIntercept(vec3, vec31);
@@ -191,7 +191,7 @@ public class Bats implements ITickHandler {
 				}
 				if (entityTarget != null)
 					for (int i = 0; i < assistants.size(); i++)
-						assistants.get(ep.username).get(i).playerEntityAttack(entityTarget);
+						assistants.get(ep.getCommandSenderName()).get(i).playerEntityAttack(entityTarget);
 			}
 		}
 	}

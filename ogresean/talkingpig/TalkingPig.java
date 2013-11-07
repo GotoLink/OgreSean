@@ -37,7 +37,7 @@ public class TalkingPig implements IPlayerTracker {
 			if (source instanceof EntityPlayer && !source.getEntityData().getBoolean("TalkingPigDead")) {
 				List<EntityTalkingPig> entities = source.worldObj.getEntitiesWithinAABB(EntityTalkingPig.class, source.boundingBox.expand(10.0, 3.0, 10.0));
 				for (EntityTalkingPig pig : entities) {
-					if (pig.owner.username == ((EntityPlayer) source).username) {
+					if (pig.getOwnerName().equals(((EntityPlayer) source).getCommandSenderName())) {
 						String s;
 						Random rand = new Random();
 						if (event.entityLiving instanceof EntityPig)
@@ -45,7 +45,7 @@ public class TalkingPig implements IPlayerTracker {
 						else
 							s = rand.nextBoolean() ? "Leave that poor $A$ alone, $P$!" : "$P$, don't abuse that $A$!";
 						((EntityPlayer) source).addChatMessage("§a<".concat(pig.getEntityName()).concat("> §e")
-								.concat(s.replace("$P$", pig.getPlayerName().replace("$A$", EntityList.getEntityString(event.entityLiving)))));
+								.concat(s.format(s, "$P$", pig.getOwnerName(), "$A$", EntityList.getEntityString(event.entityLiving))));
 						break;
 					}
 				}
@@ -64,17 +64,17 @@ public class TalkingPig implements IPlayerTracker {
 			//Spawn new Talking pig
 			EntityTalkingPig etp = new EntityTalkingPig(player.worldObj);
 			etp.setPosition(player.posX, player.posY, player.posZ);
-			etp.owner = player;
+			etp.setOwner(player.getCommandSenderName());
 			if (player.getEntityData().hasKey("TalkingPigName")) {
 				etp.setCustomNameTag(player.getEntityData().getString("TalkingPigName"));
 			} else {
 				player.getEntityData().setString("TalkingPigName", etp.getEntityName());
+				player.addChatMessage("§a<".concat(etp.getEntityName()).concat("> §e").concat("Hi ").concat(etp.getOwnerName()).concat("! My name is ")
+						.concat(etp.getEntityName().concat(" the pig. Nice to meet you!")));
 			}
 			if (!player.worldObj.isRemote) {
 				player.worldObj.spawnEntityInWorld(etp);
 			}
-			player.addChatMessage("§a<".concat(etp.getEntityName()).concat("> §e").concat(("Hi $P$! My name is ").replace("$P$", etp.getPlayerName()))
-					.concat(etp.getEntityName().concat(" the pig. Nice to meet you!")));
 		}
 	}
 
@@ -82,7 +82,7 @@ public class TalkingPig implements IPlayerTracker {
 	public void onPlayerLogout(EntityPlayer player) {
 		if (!player.getEntityData().getBoolean("TalkingPigDead")) {
 			for (Object pig : player.worldObj.getEntitiesWithinAABB(EntityTalkingPig.class, player.boundingBox.expand(30, 30, 30))) {
-				if (((EntityTalkingPig) pig).owner.username.equals(player.username)) {
+				if (((EntityTalkingPig) pig).getOwnerName().equals(player.getCommandSenderName())) {
 					((EntityTalkingPig) pig).setDead();
 				}
 			}
