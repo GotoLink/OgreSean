@@ -59,19 +59,15 @@ public class TalkingPig implements IPlayerTracker {
 
 	@Override
 	public void onPlayerLogin(EntityPlayer player) {
-		//if new world, spawn pig if not already dead
-		if (!player.getEntityData().getBoolean("TalkingPigDead")) {
+		//spawn pig if not already dead
+		if (!player.getEntityData().getBoolean("TalkingPigDead") && !player.getEntityData().hasKey("TalkingPigName")) {
 			//Spawn new Talking pig
 			EntityTalkingPig etp = new EntityTalkingPig(player.worldObj);
 			etp.setPosition(player.posX, player.posY, player.posZ);
 			etp.setOwner(player.getCommandSenderName());
-			if (player.getEntityData().hasKey("TalkingPigName")) {
-				etp.setCustomNameTag(player.getEntityData().getString("TalkingPigName"));
-			} else {
-				player.getEntityData().setString("TalkingPigName", etp.getEntityName());
-				player.addChatMessage("§a<".concat(etp.getEntityName()).concat("> §e").concat("Hi ").concat(etp.getOwnerName()).concat("! My name is ")
-						.concat(etp.getEntityName().concat(" the pig. Nice to meet you!")));
-			}
+			player.getEntityData().setString("TalkingPigName", etp.getEntityName());
+			player.addChatMessage("§a<".concat(etp.getEntityName()).concat("> §e").concat("Hi ").concat(etp.getOwnerName()).concat("! My name is ")
+					.concat(etp.getEntityName().concat(" the pig. Nice to meet you!")));
 			if (!player.worldObj.isRemote) {
 				player.worldObj.spawnEntityInWorld(etp);
 			}
@@ -80,13 +76,6 @@ public class TalkingPig implements IPlayerTracker {
 
 	@Override
 	public void onPlayerLogout(EntityPlayer player) {
-		if (!player.getEntityData().getBoolean("TalkingPigDead")) {
-			for (Object pig : player.worldObj.getEntitiesWithinAABB(EntityTalkingPig.class, player.boundingBox.expand(30, 30, 30))) {
-				if (((EntityTalkingPig) pig).getOwnerName().equals(player.getCommandSenderName())) {
-					((EntityTalkingPig) pig).setDead();
-				}
-			}
-		}
 	}
 
 	@Override
