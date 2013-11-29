@@ -156,7 +156,7 @@ public class BBEntityBloodEaterBat extends BBEntityBat {
 	protected EntityAnimal getLatchTarget() {
 		double d1 = 9999D;
 		EntityAnimal ea = null;
-		List list = worldObj.getEntitiesWithinAABBExcludingEntity(this, boundingBox.expand(1.2, 1.2, 1.2));
+		List<?> list = worldObj.getEntitiesWithinAABBExcludingEntity(this, boundingBox.expand(1.2, 1.2, 1.2));
 		for (int i = 0; i < list.size(); i++) {
 			Entity entity1 = (Entity) list.get(i);
 			if (!(entity1 instanceof EntityAnimal) || entity1 instanceof EntityChicken || entity1 == ridingEntity || entity1 == riddenByEntity) {

@@ -435,7 +435,7 @@ public class EntityTalkingPig extends EntityPig {
 	protected Entity findPlayerToAttack() {
 		if ((commands & 2) != 2)
 			return null;
-		List list = worldObj.getEntitiesWithinAABBExcludingEntity(this, boundingBox.expand(14D, 14D, 14D));
+		List<?> list = worldObj.getEntitiesWithinAABBExcludingEntity(this, boundingBox.expand(14D, 14D, 14D));
 		double dist = 9999;
 		Entity target = null;
 		for (int i = 0; i < list.size(); i++) {
@@ -482,7 +482,7 @@ public class EntityTalkingPig extends EntityPig {
 		//gather nearby pigs
 		if (pals.size() < followers) {
 			double d = 16D;
-			List list = worldObj.getEntitiesWithinAABBExcludingEntity(this, boundingBox.expand(d, d, d));
+			List<?> list = worldObj.getEntitiesWithinAABBExcludingEntity(this, boundingBox.expand(d, d, d));
 			for (int i = 0; i < list.size(); i++) {
 				Entity entity1 = (Entity) list.get(i);
 				if (!(entity1 instanceof EntityPig) || entity1 == ridingEntity || entity1 == riddenByEntity) {
@@ -539,7 +539,7 @@ public class EntityTalkingPig extends EntityPig {
 	}
 
 	private void attractEnemies() {
-		List list = worldObj.getEntitiesWithinAABBExcludingEntity(this, boundingBox.expand(10D, 10D, 10D));
+		List<?> list = worldObj.getEntitiesWithinAABBExcludingEntity(this, boundingBox.expand(10D, 10D, 10D));
 		for (int i = 0; i < list.size(); i++) {
 			Entity entity = (Entity) list.get(i);
 			if (!(entity instanceof EntityMob)) {

@@ -40,6 +40,7 @@ public class EntityCreeperSwarm extends EntityCreeper {
 		}
 		if (!CreeperSwarm.enableCustomHealth)
 			setHealth(20);
+		EntityCreeper.class.getDeclaredFields()[1].setAccessible(true);
 	}
 
 	///sets attacked Creeper to leader, if leader is idle
@@ -73,12 +74,12 @@ public class EntityCreeperSwarm extends EntityCreeper {
 			actionTimer = 241;
 		//if delayed for too long, just start exploding
 		if (actionTimer > 240) {
-			if (timeSinceIgnited == 0) {
+			if (getTimeSinceIgnited() == 0) {
 				worldObj.playSoundAtEntity(this, "random.fuse", 1.0F, 0.5F);
 			}
 			setCreeperState(1);
-			timeSinceIgnited += 2;
-			if (timeSinceIgnited >= 30) {
+			setTimeSinceIgnited(getTimeSinceIgnited()+2);
+			if (getTimeSinceIgnited() >= 30) {
 				worldObj.createExplosion(this, posX, posY, posZ, 3F, true);
 				setDead();
 			}
@@ -127,7 +128,6 @@ public class EntityCreeperSwarm extends EntityCreeper {
 				//hard = up to 9 additional creepers
 				swarmNumber = CreeperSwarm.hardMax - 1;
 			//create additional creepers on top of original creeper
-			boolean flag = false;
 			int i = -1;
 			int j = -1;
 			int k = -1;
@@ -223,16 +223,16 @@ public class EntityCreeperSwarm extends EntityCreeper {
 			return;
 		///if leader has lit fuse, sync up fuse with that leader
 		////increase fuse if leader's is higher
-		if (leader != null && leader.timeSinceIgnited > timeSinceIgnited) {
+		if (leader != null && leader.getTimeSinceIgnited() > getTimeSinceIgnited()) {
 			//make fuse sound if time was 0
-			if (timeSinceIgnited == 0) {
+			if (getTimeSinceIgnited() == 0) {
 				worldObj.playSoundAtEntity(this, "random.fuse", 1.0F, 0.5F);
 			}
 			setCreeperState(1);
-			timeSinceIgnited += 2;
+			setTimeSinceIgnited(getTimeSinceIgnited()+2);
 		}
 		//decrease fuse if leader's is lower
-		else if (leader != null && leader.timeSinceIgnited < timeSinceIgnited) {
+		else if (leader != null && leader.getTimeSinceIgnited() < getTimeSinceIgnited()) {
 			//func_21090_e(-1);
 			//timeSinceIgnited--;
 		}
@@ -316,9 +316,9 @@ public class EntityCreeperSwarm extends EntityCreeper {
 			if (isDead)
 				currentAction = 3;
 			//speed up explosion
-			else if (CreeperSwarm.enableCustomExplosionTime && timeSinceIgnited % explodeBoost == 0 && (i <= 0 && f < 3F || i > 0 && f < 7F)) {
+			else if (CreeperSwarm.enableCustomExplosionTime && getTimeSinceIgnited() % explodeBoost == 0 && (i <= 0 && f < 3F || i > 0 && f < 7F)) {
 				setCreeperState(1);
-				timeSinceIgnited++;
+				setTimeSinceIgnited(getTimeSinceIgnited()+1);
 			}
 		}
 	}
@@ -361,5 +361,22 @@ public class EntityCreeperSwarm extends EntityCreeper {
 			return target;
 		} else
 			return null;
+	}
+	
+	public int getTimeSinceIgnited(){
+		try {
+			return (int) EntityCreeper.class.getDeclaredFields()[1].get(this);
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		return 0;
+	}
+	
+	public void setTimeSinceIgnited(int time){
+		try {
+			EntityCreeper.class.getDeclaredFields()[1].set(this, time);
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
 	}
 }

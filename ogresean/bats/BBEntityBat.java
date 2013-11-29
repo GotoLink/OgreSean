@@ -281,7 +281,7 @@ public class BBEntityBat extends EntityLiving {
 			newPosRotationIncrements--;
 			setPosition(d, d1, d2);
 			setRotation(rotationYaw, rotationPitch);
-			List list1 = worldObj.getCollidingBoundingBoxes(this, boundingBox.contract(0.03125D, 0.0D, 0.03125D));
+			List<?> list1 = worldObj.getCollidingBoundingBoxes(this, boundingBox.contract(0.03125D, 0.0D, 0.03125D));
 			if (list1.size() > 0) {
 				double d4 = 0.0D;
 				for (int j = 0; j < list1.size(); j++) {
@@ -319,7 +319,7 @@ public class BBEntityBat extends EntityLiving {
 		moveEntityWithHeading(moveStrafing, moveForward);
 		if (!canBePushed())
 			return; //this is only line added
-		List list = worldObj.getEntitiesWithinAABBExcludingEntity(this, boundingBox.expand(0.20000000298023224D, 0.0D, 0.20000000298023224D));
+		List<?> list = worldObj.getEntitiesWithinAABBExcludingEntity(this, boundingBox.expand(0.20000000298023224D, 0.0D, 0.20000000298023224D));
 		if (list != null && list.size() > 0) {
 			for (int i = 0; i < list.size(); i++) {
 				Entity entity = (Entity) list.get(i);
@@ -438,7 +438,7 @@ public class BBEntityBat extends EntityLiving {
 	protected void checkForTamingItem() {
 		double d1 = 9999D;
 		EntityItem entityitem = null;
-		List list = worldObj.getEntitiesWithinAABBExcludingEntity(this, boundingBox.expand(6D, 6D, 6D));
+		List<?> list = worldObj.getEntitiesWithinAABBExcludingEntity(this, boundingBox.expand(6D, 6D, 6D));
 		for (int i = 0; i < list.size(); i++) {
 			Entity entity1 = (Entity) list.get(i);
 			if (!(entity1 instanceof EntityItem) || entity1 == ridingEntity || entity1 == riddenByEntity) {
@@ -477,7 +477,7 @@ public class BBEntityBat extends EntityLiving {
 			setHealth(getMaxHealth());
 			EntityPlayer ep = worldObj.getClosestPlayerToEntity(this, 20D);
 			if (ep != null) {
-				ArrayList list = new ArrayList();
+				ArrayList<BBEntityBat> list = new ArrayList<BBEntityBat>();
 				if (Bats.assistants.containsKey(ep.getCommandSenderName())) {
 					list = Bats.assistants.get(ep.getCommandSenderName());
 				}
@@ -534,7 +534,7 @@ public class BBEntityBat extends EntityLiving {
 	protected Entity findTarget() {
 		double d1 = 9999D;
 		EntityLiving entityliving = null;
-		List list = worldObj.getEntitiesWithinAABBExcludingEntity(this, boundingBox.expand(10, 10, 10));
+		List<?> list = worldObj.getEntitiesWithinAABBExcludingEntity(this, boundingBox.expand(10, 10, 10));
 		for (int i = 0; i < list.size(); i++) {
 			Entity entity1 = (Entity) list.get(i);
 			if (!(entity1 instanceof EntityLiving) || entity1 == ridingEntity || entity1 == riddenByEntity) {
@@ -809,7 +809,7 @@ public class BBEntityBat extends EntityLiving {
 		if (isCeilingBlock(worldObj.getBlockId(i, j + 1, k)) && !isInvalidTravelBlock(i, j, k) && worldObj.getBlockLightValue(i, j, k) <= maxCeilingLight()) {
 			setPosition(i + 0.5D, j + 1 - getScale(), k + 0.5D);
 			boolean flag = true;
-			List list = worldObj.getEntitiesWithinAABBExcludingEntity(this, boundingBox);
+			List<?> list = worldObj.getEntitiesWithinAABBExcludingEntity(this, boundingBox);
 			for (int c = 0; c < list.size(); c++) {
 				Entity entity = (Entity) list.get(c);
 				if (!entity.isDead && entity.preventEntitySpawning) {
@@ -1099,7 +1099,7 @@ public class BBEntityBat extends EntityLiving {
 	protected void wakeUpNearbyBats(double range) {
 		BBEntityBat bat = null;
 		int batCount = 0;
-		List list = worldObj.getEntitiesWithinAABBExcludingEntity(this, boundingBox.expand(range, range, range));
+		List<?> list = worldObj.getEntitiesWithinAABBExcludingEntity(this, boundingBox.expand(range, range, range));
 		for (int i = 0; i < list.size(); i++) {
 			Entity entity1 = (Entity) list.get(i);
 			if (!(entity1 instanceof BBEntityBat) || entity1 == this.ridingEntity || entity1 == this.riddenByEntity) {

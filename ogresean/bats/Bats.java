@@ -32,7 +32,7 @@ public class Bats implements ITickHandler {
 	public static int batSpawnNum = 0; //implemented
 	public static ArrayList<BBEntityBat> batsList = new ArrayList<BBEntityBat>(); //used for bat spawning
 	public static int batCount = 0; //used for bat spawning
-	public static HashMap<String, ArrayList<BBEntityBat>> assistants = new HashMap();
+	public static HashMap<String, ArrayList<BBEntityBat>> assistants = new HashMap<String, ArrayList<BBEntityBat>>();
 
 	@Override
 	public String getLabel() {
@@ -158,7 +158,7 @@ public class Bats implements ITickHandler {
 		for (Object ent : world.playerEntities) {
 			EntityPlayer ep = (EntityPlayer) ent;
 			if (!assistants.containsKey(ep.getCommandSenderName())) {
-				assistants.put(ep.getCommandSenderName(), new ArrayList());
+				assistants.put(ep.getCommandSenderName(), new ArrayList<BBEntityBat>());
 			}
 			boolean leftClicking = ep.isSwingInProgress; //true if player holding down left mouse button
 			if (leftClicking && !assistants.get(ep.getCommandSenderName()).isEmpty()) {
@@ -172,7 +172,7 @@ public class Bats implements ITickHandler {
 					vec31 = world.getWorldVec3Pool().getVecFromPool(movingobjectposition.hitVec.xCoord, movingobjectposition.hitVec.yCoord, movingobjectposition.hitVec.zCoord);
 				}
 				Entity entityTarget = null;
-				List list = world.getEntitiesWithinAABBExcludingEntity(ep, ep.boundingBox.addCoord(ep.motionX, ep.motionY, ep.motionZ).expand(1.0D, 1.0D, 1.0D));
+				List<?> list = world.getEntitiesWithinAABBExcludingEntity(ep, ep.boundingBox.addCoord(ep.motionX, ep.motionY, ep.motionZ).expand(1.0D, 1.0D, 1.0D));
 				double d0 = 0.0D;
 				for (int j = 0; j < list.size(); ++j) {
 					Entity entity1 = (Entity) list.get(j);
