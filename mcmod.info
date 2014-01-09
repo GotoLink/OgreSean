@@ -1,0 +1,17 @@
+[
+{
+  "modid": "ogreseanmods",
+  "name": "OgreSean Mods",
+  "description": "",
+  "version": "0.1",
+  "credits": "",
+  "logoFile": "",
+  "mcversion": "",
+  "url": "http://www.minecraftforum.net/topic/157524-",
+  "updateUrl": "",
+  "authors": ["OgreSean","GotoLink"],
+  "parent":"",
+  "screenshots": [],
+  "dependencies": []
+}
+]
