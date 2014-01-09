@@ -1,5 +1,7 @@
 package ogresean;
 
+import java.lang.reflect.Field;
+
 import net.minecraft.block.Block;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityCreature;
@@ -25,6 +27,7 @@ public class EntityCreeperSwarm extends EntityCreeper {
 	 */
 	public byte currentAction = 0;
 	public short actionTimer = 0;
+	Field sinceIgnited = EntityCreeper.class.getDeclaredFields()[1];
 
 	//Creeper swarms move faster, have more hp, and explode quicker on harder difficulties
 	public EntityCreeperSwarm(World world) {
@@ -40,7 +43,6 @@ public class EntityCreeperSwarm extends EntityCreeper {
 		}
 		if (!CreeperSwarm.enableCustomHealth)
 			setHealth(20);
-		EntityCreeper.class.getDeclaredFields()[1].setAccessible(true);
 	}
 
 	///sets attacked Creeper to leader, if leader is idle
@@ -365,7 +367,8 @@ public class EntityCreeperSwarm extends EntityCreeper {
 	
 	public int getTimeSinceIgnited(){
 		try {
-			return (int) EntityCreeper.class.getDeclaredFields()[1].get(this);
+			sinceIgnited.setAccessible(true);
+			return Integer.class.cast(sinceIgnited.get(this)).intValue();
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
@@ -374,7 +377,7 @@ public class EntityCreeperSwarm extends EntityCreeper {
 	
 	public void setTimeSinceIgnited(int time){
 		try {
-			EntityCreeper.class.getDeclaredFields()[1].set(this, time);
+			sinceIgnited.set(this, time);
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
