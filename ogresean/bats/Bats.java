@@ -40,7 +40,6 @@ public class Bats implements ITickHandler {
 	}
 
 	public void load(boolean client, Object mod) {
-		MinecraftForge.EVENT_BUS.register(new SoundHandler());
 		EntityRegistry.registerModEntity(BBEntityInsectBat.class, "Insect Bat", 1, mod, 80, 3, false);
 		EntityRegistry.registerModEntity(BBEntityNectarBat.class, "Nectar Bat", 2, mod, 80, 3, false);
 		EntityRegistry.registerModEntity(BBEntityFruitBat.class, "Fruit Bat", 3, mod, 80, 3, false);
@@ -48,6 +47,7 @@ public class Bats implements ITickHandler {
 		EntityRegistry.registerModEntity(BBEntityBloodEaterBat.class, "Blood Eater Bat", 5, mod, 80, 3, false);
 		TickRegistry.registerTickHandler(this, Side.SERVER);
 		if (client) {
+			MinecraftForge.EVENT_BUS.register(new SoundHandler());
 			addRenderers();
 		}
 	}
