@@ -54,10 +54,8 @@ public class DeadlyCaves implements ITickHandler{
         List<ChunkCoordinates> lava = eruptionLavaC.get(currentWorld.provider.dimensionId);
         List<Integer> lavaChance = eruptionLavaI.get(currentWorld.provider.dimensionId);
 		if(currentWorld.getWorldTime() % 20 == 0){
-			int j = currentWorld.rand.nextInt(64);
-            Iterator<?> it = currentWorld.activeChunkSet.iterator();
-            while (it.hasNext()) {
-                ChunkCoordIntPair chunkIntPair = (ChunkCoordIntPair) it.next();
+            for (Object obj:currentWorld.activeChunkSet) {
+                ChunkCoordIntPair chunkIntPair = (ChunkCoordIntPair) obj;
                 int i = chunkIntPair.chunkXPos * 16;
                 int k = chunkIntPair.chunkZPos * 16;
                 Chunk chunk = null;
@@ -65,9 +63,13 @@ public class DeadlyCaves implements ITickHandler{
                     chunk = currentWorld.getChunkFromChunkCoords(chunkIntPair.chunkXPos, chunkIntPair.chunkZPos);
                 }
                 if (chunk != null && chunk.isChunkLoaded && chunk.isTerrainPopulated) {
-			        if(currentWorld.rand.nextInt(1000) < fallStoneFrequency) causeFallStone(currentWorld, i, j, k, fallingStones, fallingStonesChance);
-			        if(j < 32 && currentWorld.rand.nextInt(1000) < caveInFrequency) causeCaveIn(currentWorld, i, j, k, caveinStones, caveinStonesChance);
-			        if(j < 16 && currentWorld.rand.nextInt(1000) < eruptionFrequency) causeEruption(currentWorld, i, j, k, lava, lavaChance);
+                    int j = currentWorld.rand.nextInt(64);
+			        if(currentWorld.rand.nextInt(1000) < fallStoneFrequency)
+                        causeFallStone(currentWorld, i, j, k, fallingStones, fallingStonesChance);
+			        if(currentWorld.rand.nextInt(1000) < caveInFrequency)
+                        causeCaveIn(currentWorld, i, (int)j/2, k, caveinStones, caveinStonesChance);
+			        if(currentWorld.rand.nextInt(1000) < eruptionFrequency)
+                        causeEruption(currentWorld, i, (int)j/4, k, lava, lavaChance);
                 }
             }
 		}
@@ -90,7 +92,7 @@ public class DeadlyCaves implements ITickHandler{
         	int y = j + currentWorld.rand.nextInt(24) - 12;
         	int z = k + currentWorld.rand.nextInt(16);
         	if(y < 4) y += 12;
-        	if(currentWorld.getBlockId(x, y, z) == Block.stone.blockID && currentWorld.getBlockId(x, y-1, z) == 0){
+        	if(currentWorld.getBlockId(x, y, z) == Block.stone.blockID && currentWorld.isAirBlock(x, y-1, z)){
         		fallingStones.add(new ChunkCoordinates(x, y, z));
         		fallingStonesChance.add(currentWorld.rand.nextInt(30) + 30 + (currentWorld.rand.nextInt(4) + 1) * 100 * fallStoneMagnitude);
         		break;
@@ -106,7 +108,7 @@ public class DeadlyCaves implements ITickHandler{
             int y = j + currentWorld.rand.nextInt(24) - 12;
             int z = k + currentWorld.rand.nextInt(16);
         	if(y < 4) y += 12;
-        	if(currentWorld.getBlockId(x, y, z) == Block.stone.blockID && currentWorld.getBlockId(x, y-1, z) == 0){
+        	if(currentWorld.getBlockId(x, y, z) == Block.stone.blockID && currentWorld.isAirBlock(x, y-1, z)){
         		caveinStones.add(new ChunkCoordinates(x, y, z));
         		caveinStonesChance.add(currentWorld.rand.nextInt(320) + 120 + (currentWorld.rand.nextInt(6) + 1) * 1000 * caveInMagnitude);
         		break;
@@ -119,9 +121,10 @@ public class DeadlyCaves implements ITickHandler{
         //find nearby lava source blocks with lava/stone/air above
         for(int a = 0; a < m; a++){
         	int x = i + currentWorld.rand.nextInt(16);
-        	int y = 8 + currentWorld.rand.nextInt(5);
+        	int y = j + currentWorld.rand.nextInt(10) - 5;
         	int z = k + currentWorld.rand.nextInt(16);
-        	if(currentWorld.getBlockId(x, y, z) == Block.lavaMoving.blockID && (currentWorld.getBlockId(x, y + 1, z) == 0 || currentWorld.getBlockId(x, y + 1, z) == Block.stone.blockID || currentWorld.getBlockId(x, y + 1, z) == Block.lavaMoving.blockID || currentWorld.getBlockId(x, y + 1, z) == Block.lavaStill.blockID)){
+            if(y < 4) y += 5;
+        	if(currentWorld.getBlockId(x, y, z) == Block.lavaMoving.blockID && (currentWorld.isAirBlock(x, y + 1, z) || currentWorld.getBlockId(x, y + 1, z) == Block.stone.blockID || currentWorld.getBlockId(x, y + 1, z) == Block.lavaMoving.blockID || currentWorld.getBlockId(x, y + 1, z) == Block.lavaStill.blockID)){
         		lava.add(new ChunkCoordinates(x, y, z));
         		lavaChance.add(currentWorld.rand.nextInt(100) + 60 + (currentWorld.rand.nextInt(5) + 1) * 1000 * eruptionMagnitude);
         	}
@@ -509,7 +512,7 @@ public class DeadlyCaves implements ITickHandler{
         			currentWorld.setBlock(c.posX, c.posY, c.posZ + 1, Block.lavaMoving.blockID, 0, 2);
         		if(currentWorld.getBlockId(c.posX, c.posY, c.posZ - 1) == 0 || currentWorld.getBlockId(c.posX, c.posY, c.posZ - 1) == Block.stone.blockID || currentWorld.getBlockId(c.posX, c.posY, c.posZ - 1) == Block.lavaMoving.blockID || currentWorld.getBlockId(c.posX, c.posY, c.posZ - 1) == Block.lavaStill.blockID)
         			currentWorld.setBlock(c.posX, c.posY, c.posZ - 1, Block.lavaMoving.blockID, 0, 2);
-                
+
                 byte flags = 0;
                 int count = a / 1000 - 1;
                 while(count > 0 && flags != 31){

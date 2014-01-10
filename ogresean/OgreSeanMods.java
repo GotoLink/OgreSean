@@ -12,7 +12,7 @@ import cpw.mods.fml.common.network.NetworkMod;
 import cpw.mods.fml.common.registry.TickRegistry;
 import cpw.mods.fml.relauncher.Side;
 
-@Mod(modid = "ogreseanmods", name = "OgreSean Mods", version = "0.1")
+@Mod(modid = "ogreseanmods", name = "OgreSean Mods", version = "0.2")
 @NetworkMod(clientSideRequired = true)
 public class OgreSeanMods {
 	@Instance("ogreseanmods")
