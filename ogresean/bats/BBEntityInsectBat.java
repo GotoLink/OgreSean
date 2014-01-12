@@ -41,12 +41,12 @@ public class BBEntityInsectBat extends BBEntityBat {
 
 	@Override
 	protected byte getAttackDelay() {
-		return (byte) (batAction > 2 ? 40 : 80);
+		return (byte) (getBatAction() > 2 ? 40 : 80);
 	}
 
 	@Override
 	protected int getBatDamage() {
-		return batAction < 3 ? 2 : 3;
+		return getBatAction() < 3 ? 2 : 3;
 	}
 
 	/**
@@ -109,7 +109,7 @@ public class BBEntityInsectBat extends BBEntityBat {
 
 	@Override
 	protected boolean willAttack() {
-		return batAction > 2 ? rand.nextInt(20) == 0 : rand.nextInt(10) == 0;
+		return getBatAction() > 2 ? rand.nextInt(20) == 0 : rand.nextInt(10) == 0;
 	}
 
 	/**

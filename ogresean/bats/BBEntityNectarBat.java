@@ -230,7 +230,7 @@ public class BBEntityNectarBat extends BBEntityBat {
 
 	@Override
 	protected float maxCeilingLight() {
-		return batAction > 2 ? 7F : 5F;
+		return getBatAction() > 2 ? 7F : 5F;
 	}
 
 	@Override

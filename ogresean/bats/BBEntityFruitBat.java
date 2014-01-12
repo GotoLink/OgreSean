@@ -200,7 +200,7 @@ public class BBEntityFruitBat extends BBEntityBat {
 
 	@Override
 	protected float maxCeilingLight() {
-		return batAction > 2 ? 8F : 7F;
+		return getBatAction() > 2 ? 8F : 7F;
 	}
 
 	@Override

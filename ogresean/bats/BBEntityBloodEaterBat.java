@@ -77,7 +77,7 @@ public class BBEntityBloodEaterBat extends BBEntityBat {
 
 	@Override
 	public void playerEntityAttack(Entity e) {
-		if (batAction == 4 && e != this) {
+		if (getBatAction() == 4 && e != this) {
 			attackTarget = e;
 			attackDelay = 0;
 		}
@@ -113,7 +113,7 @@ public class BBEntityBloodEaterBat extends BBEntityBat {
 
 	@Override
 	protected byte getAttackDelay() {
-		return (byte) (batAction > 2 ? 60 : 120);
+		return (byte) (getBatAction() > 2 ? 60 : 120);
 	}
 
 	@Override
@@ -123,7 +123,7 @@ public class BBEntityBloodEaterBat extends BBEntityBat {
 
 	@Override
 	protected int getBatDamage() {
-		return latchTarget == null || !(attackTarget instanceof EntityPig) ? 1 + rand.nextInt(batAction > 2 ? 3 : 2) : 0;
+		return latchTarget == null || !(attackTarget instanceof EntityPig) ? 1 + rand.nextInt(getBatAction() > 2 ? 3 : 2) : 0;
 	}
 
 	/**
@@ -244,13 +244,13 @@ public class BBEntityBloodEaterBat extends BBEntityBat {
 	}
 
 	protected boolean isValidTarget(EntityLiving el) {
-		return batAction > 2 ? ((el instanceof BBEntityBat && ((BBEntityBat) el).attackTarget instanceof EntityPlayer) || (el instanceof EntityCreature && ((EntityCreature) el).getEntityToAttack() instanceof EntityPlayer))
+		return getBatAction() > 2 ? ((el instanceof BBEntityBat && ((BBEntityBat) el).attackTarget instanceof EntityPlayer) || (el instanceof EntityCreature && ((EntityCreature) el).getEntityToAttack() instanceof EntityPlayer))
 				: (el instanceof EntityAnimal && !(el instanceof EntityChicken));
 	}
 
 	@Override
 	protected float maxCeilingLight() {
-		return batAction > 2 ? 6F : 4F;
+		return getBatAction() > 2 ? 6F : 4F;
 	}
 
 	@Override
@@ -260,6 +260,6 @@ public class BBEntityBloodEaterBat extends BBEntityBat {
 
 	@Override
 	protected boolean willAttack() {
-		return latchTarget == null && batAction > 2 ? rand.nextInt(80) == 0 : rand.nextInt(160) == 0;
+		return latchTarget == null && getBatAction() > 2 ? rand.nextInt(80) == 0 : rand.nextInt(160) == 0;
 	}
 }

@@ -27,13 +27,6 @@ public class BBEntityBat extends EntityLiving {
 	public float wingd;
 	public float winge;
 	public float wingh;
-	/**
-	 * batActions: 0: Sleeping 1: Awake - Panicking 2: Awake - Wandering 3:
-	 * Tamed - Sleeping 4: Tamed - Following 5: Tamed - Looking for spot to
-	 * sleep at
-	 */
-	public byte batAction;
-	public byte flightDirection;
 	public int wayPoints[]; //determines wayPoint coordinate [x, y, z]
 	protected int batTimer;
 	public Entity attackTarget; //target that bat will attack
@@ -47,8 +40,6 @@ public class BBEntityBat extends EntityLiving {
 		wingb = 0.0F;
 		wingc = 0.0F;
 		wingh = 1.0F;
-		batAction = 0;
-		flightDirection = 0;
 		wayPoints = null;
 		renderDistanceWeight = 5D;
 		batTimer = 0;
@@ -58,6 +49,34 @@ public class BBEntityBat extends EntityLiving {
 		tempClip = -1;
 	}
 
+    @Override
+    public void entityInit(){
+        super.entityInit();
+        this.dataWatcher.addObject(20, Byte.valueOf((byte) 0));
+        this.dataWatcher.addObject(21, Byte.valueOf((byte) 0));
+    }
+
+    /**
+     * batActions: 0: Sleeping 1: Awake - Panicking 2: Awake - Wandering 3:
+     * Tamed - Sleeping 4: Tamed - Following 5: Tamed - Looking for spot to
+     * sleep at
+     */
+    public byte getBatAction(){
+        return this.dataWatcher.getWatchableObjectByte(20);
+    }
+
+    public void setBatAction(byte action){
+        this.dataWatcher.updateObject(20, action);
+    }
+
+    public byte getBatDirection(){
+        return this.dataWatcher.getWatchableObjectByte(21);
+    }
+
+    public void setFlightDirection(byte direction){
+        this.dataWatcher.updateObject(21, direction);
+    }
+
 	//on collide with other entity, pushes entity far
 	@Override
 	public void applyEntityCollision(Entity entity) {
@@ -66,10 +85,10 @@ public class BBEntityBat extends EntityLiving {
 		}
 		if (entity instanceof BBEntityBat) {
 			BBEntityBat bat = (BBEntityBat) entity;
-			if (bat.batAction == 0 || bat.batAction == 3)
-				bat.wakeUp(batAction);
-			else if (batAction == 0 || batAction == 3)
-				wakeUp(bat.batAction);
+			if (bat.getBatAction() == 0 || bat.getBatAction() == 3)
+				bat.wakeUp();
+			else if (getBatAction() == 0 || getBatAction() == 3)
+				wakeUp();
 		}
 		double d = entity.posX - posX;
 		double d1 = entity.posZ - posZ;
@@ -88,7 +107,7 @@ public class BBEntityBat extends EntityLiving {
 			d1 *= 0.05000000074505806D;
 			d *= 1.0F - entityCollisionReduction;
 			d1 *= 1.0F - entityCollisionReduction;
-			double bonusVelocity = batAction == 0 || batAction == 3 ? 1.0D : getBonusVelocity();
+			double bonusVelocity = getBatAction() == 0 || getBatAction() == 3 ? 1.0D : getBonusVelocity();
 			addVelocity(-d, 0.0D, -d1);
 			entity.addVelocity(d * bonusVelocity, getBonusVelocity2(), d1 * bonusVelocity);
 		}
@@ -97,8 +116,8 @@ public class BBEntityBat extends EntityLiving {
 	@Override
 	public boolean attackEntityFrom(DamageSource d, float i) {
 		Entity entity = d.getEntity();
-		if (batAction == 0 || batAction == 3)
-			wakeUp(batAction);
+		if (getBatAction() == 0 || getBatAction() == 3)
+			wakeUp();
 		if (attackTarget == null && willBecomeAggressive(entity))
 			attackTarget = entity;
 		return super.attackEntityFrom(d, i);
@@ -107,7 +126,7 @@ public class BBEntityBat extends EntityLiving {
 	//tamed bats don't despawn
 	@Override
 	public boolean canDespawn() {
-		if (batAction > 2)
+		if (getBatAction() > 2)
 			return false;
 		else
 			return super.canDespawn();
@@ -151,7 +170,7 @@ public class BBEntityBat extends EntityLiving {
 
 	@Override
 	public float getEyeHeight() {
-		if (batAction == 0 || batAction == 3)
+		if (getBatAction() == 0 || getBatAction() == 3)
 			return height * -0.65F * (getScale() / 0.4F);
 		else
 			return height * 0.55F * (getScale() / 0.4F);
@@ -171,7 +190,7 @@ public class BBEntityBat extends EntityLiving {
 
 	@Override
 	public int getTalkInterval() {
-		if (batAction == 0 || batAction == 3)
+		if (getBatAction() == 0 || getBatAction() == 3)
 			return 240;
 		else
 			return 160;
@@ -217,13 +236,13 @@ public class BBEntityBat extends EntityLiving {
 
 	@Override
 	public boolean interact(EntityPlayer entityplayer) {
-		if (batAction == 0 || batAction == 3) {
-			wakeUp(batAction);
+		if (getBatAction() == 0 || getBatAction() == 3) {
+			wakeUp();
 			return true;
 		} else if (entityplayer.getCurrentEquippedItem() != null) {
 			ItemStack item = entityplayer.getCurrentEquippedItem();
-			if (item.itemID == Item.feather.itemID && batAction == 4) {
-				batAction = 5;
+			if (item.itemID == Item.feather.itemID && getBatAction() == 4) {
+				setBatAction((byte)5);
 				wayPoints = null;
 			}
 		}
@@ -248,15 +267,15 @@ public class BBEntityBat extends EntityLiving {
 	//player wakes up bat by touching it
 	@Override
 	public void onCollideWithPlayer(EntityPlayer entityplayer) {
-		if (batAction == 0 || batAction == 3)
-			wakeUp(batAction);
+		if (getBatAction() == 0 || getBatAction() == 3)
+			wakeUp();
 		super.onCollideWithPlayer(entityplayer);
 	}
 
 	@Override
 	public void onLivingUpdate() {
 		onSuperLivingUpdate();
-		if (batAction < 3)
+		if (getBatAction() < 3)
 			Bats.batCount--; //used for determining how many untamed bats are in world
 		if (getHealth() <= 0) {
 			setDyingVelocity();
@@ -336,24 +355,26 @@ public class BBEntityBat extends EntityLiving {
 	@Override
 	public void readEntityFromNBT(NBTTagCompound nbttagcompound) {
 		super.readEntityFromNBT(nbttagcompound);
-		batAction = nbttagcompound.getByte("BatAction");
-		if (batAction != 0 && batAction != 3) {
+		setBatAction(nbttagcompound.getByte("BatAction"));
+		if (getBatAction() != 0 && getBatAction() != 3) {
 			chooseRandomFlightDirection();
 		}
+        setFlightDirection(nbttagcompound.getByte("BatDirection"));
 	}
 
 	@Override
 	public void setDead() {
 		isDead = true;
 		Bats.batsList.remove(this);
-		if (batAction > 2)
+		if (getBatAction() > 2)
 			for (ArrayList<BBEntityBat> list : Bats.assistants.values()) {
 				list.remove(this);
 			}
 	}
 
-	public void wakeUp(int i) {
-		batAction = (byte) (i == 0 || i == 3 ? i + 1 : i);
+	public void wakeUp() {
+        int i = getBatAction();
+		setBatAction((byte) (i == 0 || i == 3 ? i + 1 : i));
 		chooseRandomFlightDirection();
 		if (i == 1)
 			wakeUpNearbyBats(16D);
@@ -362,7 +383,8 @@ public class BBEntityBat extends EntityLiving {
 	@Override
 	public void writeEntityToNBT(NBTTagCompound nbttagcompound) {
 		super.writeEntityToNBT(nbttagcompound);
-		nbttagcompound.setByte("BatAction", batAction);
+		nbttagcompound.setByte("BatAction", getBatAction());
+        nbttagcompound.setByte("BatDirection", getBatDirection());
 	}
 
 	/**
@@ -370,7 +392,7 @@ public class BBEntityBat extends EntityLiving {
 	 * batAction
 	 */
 	protected void actionUpdate() {
-		if (batAction == 0 || batAction == 3)
+		if (getBatAction() == 0 || getBatAction() == 3)
 			sleepingUpdate();
 		else
 			awakeUpdate();
@@ -405,7 +427,7 @@ public class BBEntityBat extends EntityLiving {
 	 */
 	protected void awakeUpdate() {
 		handleWings();
-		if (batAction != 5)
+		if (getBatAction() != 5)
 			handleAttacking();
 		if (!inWater) {
 			handleYMotion();
@@ -454,7 +476,7 @@ public class BBEntityBat extends EntityLiving {
 	}
 
 	protected void chooseRandomFlightDirection() {
-		flightDirection = (byte) rand.nextInt(8);
+		setFlightDirection((byte) rand.nextInt(8));
 	}
 
 	protected void collisionUpdate() {
@@ -465,8 +487,8 @@ public class BBEntityBat extends EntityLiving {
 	}
 
 	protected void devourTamingItem() {
-		if (batAction < 3) {
-			batAction = 4;
+		if (getBatAction() < 3) {
+			setBatAction((byte)4);
 			Bats.batsList.remove(this);
 			for (int i = 0; i < 7; i++) {
 				double d = rand.nextGaussian() * 0.02D;
@@ -556,7 +578,7 @@ public class BBEntityBat extends EntityLiving {
 	}
 
 	protected byte getAttackDelay() {
-		return batAction > 2 ? 50 : (byte) (120 - worldObj.difficultySetting * 20);
+		return getBatAction() > 2 ? 50 : (byte) (120 - worldObj.difficultySetting * 20);
 	}
 
 	protected float getAttackDistance() {
@@ -564,11 +586,11 @@ public class BBEntityBat extends EntityLiving {
 	}
 
 	protected float getBaseWakeChance() {
-		return batAction == 3 ? 0.00001F : 0.0001F;
+		return getBatAction() == 3 ? 0.00001F : 0.0001F;
 	}
 
 	protected int getBatDamage() {
-		return batAction < 3 ? worldObj.difficultySetting : 2;
+		return getBatAction() < 3 ? worldObj.difficultySetting : 2;
 	}
 
 	/**
@@ -621,7 +643,7 @@ public class BBEntityBat extends EntityLiving {
 		if (isWet())
 			return rand.nextFloat();
 		//tamed bats fly close to player
-		if (batAction == 4) {
+		if (getBatAction() == 4) {
 			EntityPlayer player = worldObj.getClosestPlayerToEntity(this, 20);
 			if (player != null) {
 				double dist = getDistanceToEntity(player);
@@ -633,10 +655,10 @@ public class BBEntityBat extends EntityLiving {
 			}
 		}
 		//if looking for spot to roost
-		else if (batAction == 5 && isCeilingBlock(worldObj.getBlockId(i, j + 1, k)) && !isInvalidTravelBlock(i, j, k) && worldObj.getBlockLightValue(i, j, k) <= maxCeilingLight())
+		else if (getBatAction() == 5 && isCeilingBlock(worldObj.getBlockId(i, j + 1, k)) && !isInvalidTravelBlock(i, j, k) && worldObj.getBlockLightValue(i, j, k) <= maxCeilingLight())
 			return 200F;
 		//wild bats have chance of aiming for loose blocks
-		else if (batAction < 3 && isLooseBlock(worldObj.getBlockId(i, j, k))) //wild bats have chance of aiming for loose blocks
+		else if (getBatAction() < 3 && isLooseBlock(worldObj.getBlockId(i, j, k))) //wild bats have chance of aiming for loose blocks
 			return -4F + worldObj.difficultySetting * 3F;
 		else if (isInvalidTravelBlock(i, j, k)) //other non-air blocks ignored
 			return -100F;
@@ -644,7 +666,7 @@ public class BBEntityBat extends EntityLiving {
 			return 100F;
 		float xDif = (float) (posX - i); // north/south
 		float zDif = (float) (posZ - k); // east/west
-		switch (flightDirection) {
+		switch (getBatDirection()) {
 		case 0: //NorthEast
 			return ((xDif + zDif) / 2F);
 		case 1: //East
@@ -697,7 +719,7 @@ public class BBEntityBat extends EntityLiving {
 	}
 
 	protected double getWaypointDistance() {
-		return batAction == 5 ? 0.4D : 1.4D;
+		return getBatAction() == 5 ? 0.4D : 1.4D;
 	}
 
 	protected double getXZFlight() {
@@ -758,8 +780,8 @@ public class BBEntityBat extends EntityLiving {
 		int i = MathHelper.floor_double(posX);
 		int j = MathHelper.floor_double(boundingBox.minY);
 		int k = MathHelper.floor_double(posZ);
-		if ((batAction == 0 || batAction == 3) && !isCeilingBlock(worldObj.getBlockId(i, j + 1, k)))
-			wakeUp(batAction);
+		if ((getBatAction() == 0 || getBatAction() == 3) && !isCeilingBlock(worldObj.getBlockId(i, j + 1, k)))
+			wakeUp();
 	}
 
 	protected void handleNoClip() {
@@ -819,7 +841,7 @@ public class BBEntityBat extends EntityLiving {
 			if (!flag) {
 				setPosition(posX, posY - 1 + getScale(), posZ);
 			} else {
-				batAction = 3;
+				setBatAction((byte)3);
 				wakeDelay = 120;
 				setSleepMotion();
 			}
@@ -831,19 +853,19 @@ public class BBEntityBat extends EntityLiving {
 		EntityPlayer ep = worldObj.getClosestPlayerToEntity(this, 20);
 		if (ep == null)
 			return;
-		if (batAction < 3) { //frightened or wandering bat
+		if (getBatAction() < 3) { //frightened or wandering bat
 			handleTaming(ep);
 		}
-		if (batAction == 5) { //find perch
+		if (getBatAction() == 5) { //find perch
 			handlePerching();
 		}
-		if (batAction == 4) //teleport far away bats
+		if (getBatAction() == 4) //teleport far away bats
 			handleTeleport(ep);
 	}
 
 	protected void handleTaming(EntityPlayer ep) {
 		float distance = ep.getDistanceToEntity(this);
-		if (batAction == 1 && distance > 20F && !this.canEntityBeSeen(ep))
+		if (getBatAction() == 1 && distance > 20F && !this.canEntityBeSeen(ep))
 			setDead();
 		else if (distance < 12F && attackTarget == null) //bats not eating an item willing to be tamed
 			checkForTamingItem();
@@ -877,7 +899,7 @@ public class BBEntityBat extends EntityLiving {
 			float wakeUpChance1 = getBrightnessWakeChance();
 			float wakeUpChance2 = getPlayerProximityWakeChance(ep.getDistanceToEntity(this));
 			if (rand.nextFloat() < (getBaseWakeChance() * wakeUpChance1 * wakeUpChance2))
-				wakeUp(batAction);
+				wakeUp();
 		}
 		handleMissingCeiling();
 	}
@@ -928,13 +950,13 @@ public class BBEntityBat extends EntityLiving {
 	}
 
 	protected boolean isValidTarget(EntityLivingBase el) {
-		return (batAction < 3 && el instanceof EntityPlayer)
-				|| (batAction > 2 && (el instanceof BBEntityBat && ((BBEntityBat) el).attackTarget instanceof EntityPlayer) || (el instanceof EntityCreature && ((EntityCreature) el)
+		return (getBatAction() < 3 && el instanceof EntityPlayer)
+				|| (getBatAction() > 2 && (el instanceof BBEntityBat && ((BBEntityBat) el).attackTarget instanceof EntityPlayer) || (el instanceof EntityCreature && ((EntityCreature) el)
 						.getEntityToAttack() instanceof EntityPlayer));
 	}
 
 	protected float maxCeilingLight() {
-		return batAction > 2 ? 6F : 4F;
+		return getBatAction() > 2 ? 6F : 4F;
 	}
 
 	protected float maxWanderLight() {
@@ -966,7 +988,9 @@ public class BBEntityBat extends EntityLiving {
 	 * Makes a bat fall straight down to the ground when it is killed.
 	 */
 	protected void setDyingVelocity() {
-		setVelocity(0.0D, -0.4D, 0.0D);
+        motionY = 0D;
+        motionX = -0.4D;
+        motionZ = 0D;
 	}
 
 	protected void setNewWayPoint() {
@@ -1036,7 +1060,7 @@ public class BBEntityBat extends EntityLiving {
 		int j = MathHelper.floor_double(boundingBox.minY);
 		int k = MathHelper.floor_double(posZ);
 		if (worldObj.getBlockLightValue(i, j, k) <= maxWanderLight()) {
-			batAction = 2;
+			setBatAction((byte)2);
 			return true;
 		}
 		return false;
@@ -1056,7 +1080,7 @@ public class BBEntityBat extends EntityLiving {
 			xzMaxSpeed += getXZMaxFlightAttackBoost();
 		}
 		//slow down bat if near player and player holding feather
-		if (batAction > 2) {
+		if (getBatAction() > 2) {
 			EntityPlayer player = worldObj.getClosestPlayerToEntity(this, 6);
 			if (player != null && player.getCurrentEquippedItem() != null && player.getCurrentEquippedItem().itemID == Item.feather.itemID) {
 				yMaxSpeed = 0.3D;
@@ -1089,11 +1113,11 @@ public class BBEntityBat extends EntityLiving {
 
 	//changes flight direction slightly on collision
 	protected void updateFlightDirectionOnCollision() {
-		flightDirection = (byte) (rand.nextBoolean() == true ? flightDirection - 1 : flightDirection + 1);
-		if (flightDirection < 0)
-			flightDirection = 7;
-		else if (flightDirection > 7)
-			flightDirection = 0;
+		setFlightDirection((byte) (rand.nextBoolean() ? getBatDirection() - 1 : getBatDirection() + 1));
+		if (getBatDirection() < 0)
+			setFlightDirection((byte)7);
+		else if (getBatDirection() > 7)
+			setFlightDirection((byte)0);
 	}
 
 	protected void wakeUpNearbyBats(double range) {
@@ -1106,8 +1130,8 @@ public class BBEntityBat extends EntityLiving {
 				continue;
 			}
 			bat = ((BBEntityBat) entity1);
-			if (bat.batAction == 0 || bat.batAction == 3) {
-				bat.wakeUp(bat.batAction);
+			if (bat.getBatAction() == 0 || bat.getBatAction() == 3) {
+				bat.wakeUp();
 				batCount++;
 			}
 		}
@@ -1116,7 +1140,7 @@ public class BBEntityBat extends EntityLiving {
 	}
 
 	protected boolean willAttack() {
-		return batAction > 2 ? rand.nextInt(20) == 0 : (worldObj.difficultySetting * 3 * worldObj.difficultySetting) + rand.nextInt(100) > 99;
+		return getBatAction() > 2 ? rand.nextInt(20) == 0 : (worldObj.difficultySetting * 3 * worldObj.difficultySetting) + rand.nextInt(100) > 99;
 	}
 
 	/**

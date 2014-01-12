@@ -7,6 +7,8 @@ import java.util.Iterator;
 import java.util.List;
 
 import net.minecraft.entity.Entity;
+import net.minecraft.entity.EntityLiving;
+import net.minecraft.entity.EnumCreatureType;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.util.AxisAlignedBB;
 import net.minecraft.util.MathHelper;
@@ -15,6 +17,7 @@ import net.minecraft.util.Vec3;
 import net.minecraft.world.World;
 import net.minecraft.world.biome.BiomeGenBase;
 import net.minecraft.world.biome.SpawnListEntry;
+import net.minecraftforge.common.BiomeDictionary;
 import net.minecraftforge.common.Configuration;
 import net.minecraftforge.common.MinecraftForge;
 import cpw.mods.fml.client.registry.RenderingRegistry;
@@ -24,11 +27,17 @@ import cpw.mods.fml.common.registry.EntityRegistry;
 import cpw.mods.fml.common.registry.TickRegistry;
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
+import net.minecraftforge.event.Event;
+import net.minecraftforge.event.ForgeSubscribe;
+import net.minecraftforge.event.entity.living.LivingSpawnEvent;
+import net.minecraftforge.event.world.WorldEvent;
 
 public class Bats implements ITickHandler {
 	//configuration variables
 	public static int dayBatSpawnRate = 75, nightBatSpawnRate = 10; //implemented
-	public static ArrayList<SpawnListEntry> batSpawnList = new ArrayList<SpawnListEntry>(); //implemented
+    public static final Class<?extends EntityLiving>[] bats = new Class[]{BBEntityInsectBat.class, BBEntityNectarBat.class, BBEntityFruitBat.class, BBEntityMeatEaterBat.class, BBEntityBloodEaterBat.class};
+	public static final String[] batsName = {"Insect ", "Nectar ", "Fruit ", "Meat Eater ", "Blood Eater "};
+    public static ArrayList<Integer> batSpawnList = new ArrayList<Integer>(); //implemented
 	public static int batSpawnNum = 0; //implemented
 	public static ArrayList<BBEntityBat> batsList = new ArrayList<BBEntityBat>(); //used for bat spawning
 	public static int batCount = 0; //used for bat spawning
@@ -40,17 +49,46 @@ public class Bats implements ITickHandler {
 	}
 
 	public void load(boolean client, Object mod) {
-		EntityRegistry.registerModEntity(BBEntityInsectBat.class, "Insect Bat", 1, mod, 80, 3, false);
-		EntityRegistry.registerModEntity(BBEntityNectarBat.class, "Nectar Bat", 2, mod, 80, 3, false);
-		EntityRegistry.registerModEntity(BBEntityFruitBat.class, "Fruit Bat", 3, mod, 80, 3, false);
-		EntityRegistry.registerModEntity(BBEntityMeatEaterBat.class, "Meat Eater Bat", 4, mod, 80, 3, false);
-		EntityRegistry.registerModEntity(BBEntityBloodEaterBat.class, "Blood Eater Bat", 5, mod, 80, 3, false);
+        for(int i=0; i<batsName.length; i++){
+            EntityRegistry.registerModEntity(bats[i], batsName[i]+"Bat", i, mod, 80, 3, false);
+            if(i!=2&&i!=4){
+                addSpawn(bats[i], batSpawnList.get(i), BiomeGenBase.biomeList);
+            }
+        }
+        addSpawn(bats[2], batSpawnList.get(2), BiomeDictionary.getBiomesForType(BiomeDictionary.Type.FOREST));
+        addSpawn(bats[4], batSpawnList.get(4), BiomeDictionary.getBiomesForType(BiomeDictionary.Type.JUNGLE));
+        removeSpawn(bats[1], BiomeDictionary.getBiomesForType(BiomeDictionary.Type.DESERT));
+        removeSpawn(bats[1], BiomeDictionary.getBiomesForType(BiomeDictionary.Type.FROZEN));
 		TickRegistry.registerTickHandler(this, Side.SERVER);
+        MinecraftForge.EVENT_BUS.register(this);
 		if (client) {
 			MinecraftForge.EVENT_BUS.register(new SoundHandler());
 			addRenderers();
 		}
 	}
+
+    public static void addSpawn(Class <? extends EntityLiving> entityClass, int weightedProb, BiomeGenBase... biomes){
+        for (BiomeGenBase biome : biomes){
+            if(biome!=null){
+                List<SpawnListEntry> spawns = biome.getSpawnableList(EnumCreatureType.creature);
+                spawns.add(new SpawnListEntry(entityClass, weightedProb, 1, 1));
+            }
+        }
+    }
+
+    public static void removeSpawn(Class <? extends EntityLiving> entityClass, BiomeGenBase... biomes){
+        for (BiomeGenBase biome : biomes){
+            if(biome!=null){
+                List<SpawnListEntry> spawns = biome.getSpawnableList(EnumCreatureType.creature);
+                for (SpawnListEntry entry : spawns){
+                    if (entry.entityClass == entityClass){
+                        spawns.remove(entry);
+                        break;
+                    }
+                }
+            }
+        }
+    }
 
 	@Override
 	public void tickEnd(EnumSet<TickType> type, Object... tickData) {
@@ -83,47 +121,40 @@ public class Bats implements ITickHandler {
 			nightBatSpawnRate = 400;
 		int num = config.get("Bats", "Relative spawn rate for insect type", 20).getInt(20);
 		if (num > 0) {
-			batSpawnList.add(new SpawnListEntry(BBEntityInsectBat.class, num, 0, 0));
+			batSpawnList.add(num);
 			batSpawnNum += num;
 		}
 		num = config.get("Bats", "Relative spawn rate for nectar type", 5).getInt(5);
 		if (num > 0) {
-			batSpawnList.add(new SpawnListEntry(BBEntityNectarBat.class, num, 0, 0));
+			batSpawnList.add(num);
 			batSpawnNum += num;
 		}
 		num = config.get("Bats", "Relative spawn rate for fruit type", 5).getInt(5);
 		if (num > 0) {
-			batSpawnList.add(new SpawnListEntry(BBEntityFruitBat.class, num, 0, 0));
+			batSpawnList.add(num);
 			batSpawnNum += num;
 		}
 		num = config.get("Bats", "Relative spawn rate for meat type", 5).getInt(5);
 		if (num > 0) {
-			batSpawnList.add(new SpawnListEntry(BBEntityMeatEaterBat.class, num, 0, 0));
+			batSpawnList.add(num);
 			batSpawnNum += num;
 		}
 		num = config.get("Bats", "Relative spawn rate for blood type", 5).getInt(5);
 		if (num > 0) {
-			batSpawnList.add(new SpawnListEntry(BBEntityBloodEaterBat.class, num, 0, 0));
+			batSpawnList.add(num);
 			batSpawnNum += num;
 		}
 		return batSpawnNum > 0;
 	}
 
-	protected static BBEntityBat pickRandomBat(World world) {
-		int b = world.rand.nextInt(batSpawnNum);
-		for (int i = 0; i < batSpawnList.size(); i++) {
-			int x = batSpawnList.get(i).itemWeight;
-			if (b >= x)
-				b -= x;
-			else
-				try {
-					return (BBEntityBat) batSpawnList.get(i).entityClass.getConstructor(World.class).newInstance(world);
-				} catch (Exception e) {
-					return new BBEntityInsectBat(world);
-				}
-		}
-		return new BBEntityInsectBat(world);
-	}
+    @ForgeSubscribe
+    public void onTrySpawn(LivingSpawnEvent.CheckSpawn event){
+        if(event.entityLiving instanceof BBEntityBat){
+            if(getBatSpawnRate(event.world) <= 0 || event.world.getWorldTime() % MathHelper.floor_double(4D * (100D / getBatSpawnRate(event.world))) != 0||!validSpawnArea((BBEntityBat)event.entityLiving, (int)event.x, (int)event.y, (int)event.z)){
+                event.setResult(Event.Result.DENY);
+            }
+        }
+    }
 
 	protected static boolean validSpawnArea(BBEntityBat bat, int x, int y, int z) {
 		if (!bat.worldObj.isAirBlock(x, y, z)) {
@@ -144,16 +175,12 @@ public class Bats implements ITickHandler {
 	}
 
 	private static void onTickInGame(World world) {
-		//spawn bats every 4 ticks (increased by spawning frequency)
-		if (getBatSpawnRate(world) > 0 && world.getWorldTime() % MathHelper.floor_double(4D * (100D / getBatSpawnRate(world))) == 0) {
-			performBatSpawning(world);
-		}
 		//if newly untamed bats spawned, they will be added to the bats list
 		if (batCount != 0)
 			refreshBatList(world);
 		batCount = batsList.size();
 		//TELL FOLLOWing bats TO AID
-		if (!world.isRemote || world.playerEntities.isEmpty())
+		if (world==null || world.playerEntities.isEmpty())
 			return;
 		for (Object ent : world.playerEntities) {
 			EntityPlayer ep = (EntityPlayer) ent;
@@ -196,39 +223,6 @@ public class Bats implements ITickHandler {
 		}
 	}
 
-	//spawns bats into world
-	private static void performBatSpawning(World world) {
-		if (batsList.size() > 32 || world.playerEntities.isEmpty())
-			return;
-		EntityPlayer player = (EntityPlayer) world.playerEntities.get(world.rand.nextInt(world.playerEntities.size()));
-		//get current player chunk
-		int chunkX = MathHelper.floor_double(player.posX / 16.0D);
-		int chunkZ = MathHelper.floor_double(player.posZ / 16.0D);
-		//choose random chunk to spawn bats at
-		chunkX += world.rand.nextInt(13) - 6;
-		chunkZ += world.rand.nextInt(13) - 6;
-		if (world.getChunkProvider().chunkExists(chunkX, chunkZ)) {
-			//choose random coordinates in chunk to spawn bats at
-			int x = (chunkX * 16) + world.rand.nextInt(16);
-			int y = world.rand.nextInt(120) + 6;
-			int z = (chunkZ * 16) + world.rand.nextInt(16);
-			while (player.getDistance(x, y, z) < 20D)
-				//make bats spawn somewhat far from player
-				z -= world.rand.nextInt(6) + 4;
-			//spawn multiple bats near that location
-			BBEntityBat bat = pickRandomBat(world); //get a random type of bat
-			if (!validSpawnArea(bat, x, y, z))
-				return; //check if bat can spawn in this biome and depth
-			for (int i = 0; i < bat.getMaxSpawnedInChunk(); i++) {
-				bat.setLocationAndAngles(x, y, z, world.rand.nextFloat() * 360.0F, 0.0F);
-				if (bat.getCanSpawnHere()) {
-					batsList.add(bat);
-					world.spawnEntityInWorld(bat);
-				}
-			}
-		}
-	}
-
 	//refreshes the bat list
 	private static void refreshBatList(World world) {
 		batsList.clear();
@@ -236,7 +230,7 @@ public class Bats implements ITickHandler {
 		Iterator<Entity> itr = world.loadedEntityList.iterator();
 		while (itr.hasNext()) {
 			ent = itr.next();
-			if (ent instanceof BBEntityBat && !ent.isDead && ((BBEntityBat) ent).batAction < 3) {
+			if (ent instanceof BBEntityBat && !ent.isDead && ((BBEntityBat) ent).getBatAction() < 3) {
 				batsList.add((BBEntityBat) ent);
 			}
 		}

@@ -57,12 +57,12 @@ public class BBEntityMeatEaterBat extends BBEntityBat {
 
 	@Override
 	protected byte getAttackDelay() {
-		return (byte) (batAction > 2 ? 40 : 120);
+		return (byte) (getBatAction() > 2 ? 40 : 120);
 	}
 
 	@Override
 	protected int getBatDamage() {
-		return 2 + rand.nextInt(batAction > 2 ? 5 : 3);
+		return 2 + rand.nextInt(getBatAction() > 2 ? 5 : 3);
 	}
 
 	/**
@@ -147,13 +147,13 @@ public class BBEntityMeatEaterBat extends BBEntityBat {
 	@Override
 	protected boolean isValidTarget(EntityLivingBase el) {
 		return isRabid ? super.isValidTarget(el)
-				: (batAction > 2 ? ((el instanceof BBEntityBat && ((BBEntityBat) el).attackTarget instanceof EntityPlayer) || (el instanceof EntityCreature && ((EntityCreature) el)
+				: (getBatAction() > 2 ? ((el instanceof BBEntityBat && ((BBEntityBat) el).attackTarget instanceof EntityPlayer) || (el instanceof EntityCreature && ((EntityCreature) el)
 						.getEntityToAttack() instanceof EntityPlayer)) : ((el instanceof BBEntityBat && rand.nextFloat() < 0.2F) || el instanceof EntityChicken));
 	}
 
 	@Override
 	protected float maxCeilingLight() {
-		return batAction > 2 ? 6F : 6F;
+		return getBatAction() > 2 ? 6F : 6F;
 	}
 
 	@Override
@@ -163,6 +163,6 @@ public class BBEntityMeatEaterBat extends BBEntityBat {
 
 	@Override
 	protected boolean willAttack() {
-		return isRabid ? super.willAttack() : (batAction > 2 ? rand.nextInt(40) == 0 : rand.nextInt(50) == 0);
+		return isRabid ? super.willAttack() : (getBatAction() > 2 ? rand.nextInt(40) == 0 : rand.nextInt(50) == 0);
 	}
 }

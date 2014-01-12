@@ -64,7 +64,7 @@ public class BBRenderBat extends RenderLiving {
 	@Override
 	public void doRenderLiving(EntityLiving entityliving, double d, double d1, double d2, float f, float f1) {
 		super.doRenderLiving(entityliving, d, d1, d2, f, f1);
-		if (((BBEntityBat) entityliving).batAction > 2 && entityliving.getDistanceToEntity(renderManager.livingPlayer) < 32F) {
+		if (((BBEntityBat) entityliving).getBatAction() > 2 && entityliving.getDistanceToEntity(renderManager.livingPlayer) < 32F) {
 			float f3 = 0.01666667F * 1.6F;
 			GL11.glPushMatrix();
 			GL11.glTranslatef((float) d + 0.0F, (float) d1 + 1.1F, (float) d2);
@@ -113,7 +113,7 @@ public class BBRenderBat extends RenderLiving {
 	}
 
 	protected double getBatYOffset(BBEntityBat bat) {
-		if (bat.batAction == 0 || bat.batAction == 3)
+		if (bat.getBatAction() == 0 || bat.getBatAction() == 3)
 			return bat.getScale();
 		else
 			return 0.0D;
@@ -132,7 +132,7 @@ public class BBRenderBat extends RenderLiving {
 	@Override
 	protected void preRenderCallback(EntityLivingBase entityliving, float f) {
 		BBEntityBat bat = (BBEntityBat) entityliving;
-		batModel.isSleeping = bat.batAction == 0 || bat.batAction == 3 ? true : false;
+		batModel.isSleeping = bat.getBatAction() == 0 || bat.getBatAction() == 3;
 	}
 
 	//f = func_170_d
@@ -148,7 +148,7 @@ public class BBRenderBat extends RenderLiving {
 				f3 = 1.0F;
 			}
 			GL11.glRotatef(f3 * getDeathMaxRotation(bat), 0.0F, 0.0F, 1.0F);
-		} else if (bat.batAction == 0 || bat.batAction == 3) {
+		} else if (bat.getBatAction() == 0 || bat.getBatAction() == 3) {
 			GL11.glRotatef(180F, 0.0F, 0.0F, 1.0F);
 		}
 	}
