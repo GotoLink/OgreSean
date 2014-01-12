@@ -13,6 +13,7 @@ import net.minecraft.world.ChunkCoordIntPair;
 import net.minecraft.world.World;
 import net.minecraft.world.chunk.Chunk;
 import net.minecraftforge.common.Configuration;
+import net.minecraftforge.event.ForgeSubscribe;
 
 public class DeadlyCaves implements ITickHandler{
 	
@@ -156,9 +157,6 @@ public class DeadlyCaves implements ITickHandler{
                 double d1 = ((double)c.posY + block.getBlockBoundsMinY()) - (double)f;
                 double d2 = (double)c.posZ + currentWorld.rand.nextDouble() * (block.getBlockBoundsMaxZ() - block.getBlockBoundsMinZ() - (double)(f * 2.0F)) + (double)f + block.getBlockBoundsMinZ();
                 currentWorld.spawnParticle("tilecrack_"+block.blockID+"_0", d, d1, d2, 0, 0, 0);
-                /*EntityFX digfx = (new EntityDiggingFX(currentWorld, d, d1, d2, 0.0D, 0.0D, 0.0D, block, 0, 0)).func_4041_a(c.posX, c.posY, c.posZ).func_407_b(0.2F).func_405_d(0.6F);
-                digfx.renderDistanceWeight = 16D;
-                currentWorld.effectRenderer.addEffect(digfx);*/
             }
 			//else
 			//make block breaking sound
@@ -167,7 +165,6 @@ public class DeadlyCaves implements ITickHandler{
             else{
         		block = Block.stone;
                 currentWorld.playSound((double)c.posX + 0.5F, (double)c.posY - 0.5F, (double)c.posZ + 0.5F, block.stepSound.stepSoundName, (block.stepSound.getVolume() + 2.0F) / 8F, block.stepSound.getPitch() * 0.5F, false);
-        		currentWorld.setBlockToAir(c.posX, c.posY, c.posZ);
         		EntityFallingSand entityfallingstone = new EntityFallingSand(currentWorld, (float)c.posX + 0.5F, (float)c.posY + 0.5F, (float)c.posZ + 0.5F, Block.stone.blockID);
                 currentWorld.spawnEntityInWorld(entityfallingstone);
                 
@@ -296,7 +293,7 @@ public class DeadlyCaves implements ITickHandler{
                 }
                 fallingStones.remove(i);
                 fallingStonesChance.remove(i);
-        	i--;
+        	    i--;
             }
         }
 	}
@@ -327,9 +324,6 @@ public class DeadlyCaves implements ITickHandler{
                 double d1 = ((double)c.posY + block.getBlockBoundsMinY()) - (double)f;
                 double d2 = (double)c.posZ + currentWorld.rand.nextDouble() * (block.getBlockBoundsMaxX() - block.getBlockBoundsMinZ() - (double)(f * 2.0F)) + (double)f + block.getBlockBoundsMinZ();
                 currentWorld.spawnParticle("tilecrack_"+block.blockID+"_0", d, d1, d2, 0, 0, 0);
-                /*EntityFX digfx = (new EntityDiggingFX(currentWorld, d, d1, d2, 0.0D, 0.0D, 0.0D, block, 0, 0)).func_4041_a(c.posX, c.posY, c.posZ).func_407_b(0.2F).func_405_d(0.6F);
-                digfx.renderDistanceWeight = 16D;
-                game.effectRenderer.addEffect(digfx);*/
             }
 			//else
 			//make block breaking sound
@@ -338,7 +332,6 @@ public class DeadlyCaves implements ITickHandler{
             else{
             	block = Block.stone;
         		currentWorld.playSound((float)c.posX + 0.5F, (float)c.posY - 0.5F, (float)c.posZ + 0.5F, block.stepSound.stepSoundName, (block.stepSound.getVolume() + 4.0F) / 8F, block.stepSound.getPitch() * 0.5F, false);
-        		currentWorld.setBlockToAir(c.posX, c.posY, c.posZ);
         		EntityFallingSand entityfallingstone = new EntityFallingSand(currentWorld, (float)c.posX + 0.5F, (float)c.posY + 0.5F, (float)c.posZ + 0.5F, Block.stone.blockID);
                 currentWorld.spawnEntityInWorld(entityfallingstone);
                 
@@ -491,9 +484,6 @@ public class DeadlyCaves implements ITickHandler{
                 double d1 = (double)c.posY + Block.lavaMoving.getBlockBoundsMaxY();
                 double d2 = (float)c.posZ + currentWorld.rand.nextFloat();
                 currentWorld.spawnParticle("lava", d, d1, d2, 0.0D, 0.0D, 0.0D);
-                /*EntityFX lavafx = new EntityLavaFX(currentWorld, d, d1, d2);
-                lavafx.renderDistanceWeight = 16D;
-                game.effectRenderer.addEffect(lavafx);*/
             }
 			//else
 			//make lava sound
@@ -604,7 +594,6 @@ public class DeadlyCaves implements ITickHandler{
                 lava.remove(i);
                 lavaChance.remove(i);
                 i--;
-                
         	}
         }
 	}
