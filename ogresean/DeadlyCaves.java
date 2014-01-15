@@ -7,13 +7,13 @@ import cpw.mods.fml.common.TickType;
 import cpw.mods.fml.common.registry.TickRegistry;
 import cpw.mods.fml.relauncher.Side;
 import net.minecraft.block.Block;
+import net.minecraft.block.material.Material;
 import net.minecraft.entity.item.EntityFallingSand;
 import net.minecraft.util.ChunkCoordinates;
 import net.minecraft.world.ChunkCoordIntPair;
 import net.minecraft.world.World;
 import net.minecraft.world.chunk.Chunk;
 import net.minecraftforge.common.Configuration;
-import net.minecraftforge.event.ForgeSubscribe;
 
 public class DeadlyCaves implements ITickHandler{
 	
@@ -27,13 +27,13 @@ public class DeadlyCaves implements ITickHandler{
 	}
 	
 	public void setConfigurationSettings(Configuration config){
-        config.addCustomCategoryComment("Deadly caves", "For Frequencies, the higher the number the more often the event can occur.  A frequency of 0 will make the event never occur.  For Magnitudes, the higher the number the greater the effect of the event.  For example, setting the Cave In Magnitude to 100 will create nearly endless Cave Ins that can make entire cave systems collapse (which is extremely dangerous, but very fun to try to outrun).");
-        fallStoneFrequency = config.get("Deadly caves", "Falling stone frequency", 125).getInt();
-        caveInFrequency = config.get("Deadly caves", "Cave In frequency", 55).getInt();
-        eruptionFrequency = config.get("Deadly caves", "Eruption frequency", 30).getInt();
+        config.addCustomCategoryComment("Deadly caves", "For Frequencies, the higher the number the more often the event can occur, up to 1000.  A frequency below 1 will make the event never occur.  For Magnitudes, the higher the number the greater the effect of the event.  For example, setting the Cave In Magnitude to 100 will create nearly endless Cave Ins that can make entire cave systems collapse (which is extremely dangerous, but very fun to try to outrun).");
+        fallStoneFrequency = config.get("Deadly caves", "Falling stone frequency", 65).getInt();
+        caveInFrequency = config.get("Deadly caves", "Cave In frequency", 25).getInt();
+        eruptionFrequency = config.get("Deadly caves", "Eruption frequency", 10).getInt();
         fallStoneMagnitude = config.get("Deadly caves", "Falling stone magnitude", 1).getInt();
         caveInMagnitude = config.get("Deadly caves", "Cave In magnitude", 3).getInt();
-        eruptionMagnitude = config.get("Deadly caves", "Eruption magnitude", 6).getInt();
+        eruptionMagnitude = config.get("Deadly caves", "Eruption magnitude", 2).getInt();
         TickRegistry.registerTickHandler(this, Side.SERVER);
     }
 	
@@ -85,12 +85,11 @@ public class DeadlyCaves implements ITickHandler{
         eruptionLavaI.put(currentWorld.provider.dimensionId, lavaChance);
 	}
 	
-	public void causeFallStone(World currentWorld, int i, int j, int k, List<ChunkCoordinates> fallingStones, List<Integer> fallingStonesChance){
-        int m = (64 - j) / 10 + 5; //5 to 11
+	public void causeFallStone(World currentWorld, int i, int y, int k, List<ChunkCoordinates> fallingStones, List<Integer> fallingStonesChance){
+        int m = (64 - y) / 10 + 5; //5 to 11
         //find nearby stone blocks with nothing underneath
         for(int a = 0; a < m; a++){
         	int x = i + currentWorld.rand.nextInt(16);
-        	int y = j + currentWorld.rand.nextInt(24) - 12;
         	int z = k + currentWorld.rand.nextInt(16);
         	if(y < 4) y += 12;
         	if(currentWorld.getBlockId(x, y, z) == Block.stone.blockID && currentWorld.isAirBlock(x, y-1, z)){
@@ -101,12 +100,11 @@ public class DeadlyCaves implements ITickHandler{
         }
 	}
 	
-	public void causeCaveIn(World currentWorld, int i, int j, int k, List<ChunkCoordinates> caveinStones, List<Integer> caveinStonesChance){
-        int m = (32 - j) / 5 + 5; //5 to 11
+	public void causeCaveIn(World currentWorld, int i, int y, int k, List<ChunkCoordinates> caveinStones, List<Integer> caveinStonesChance){
+        int m = (32 - y) / 5 + 5; //5 to 11
         //find nearby stone blocks with nothing underneath
         for(int a = 0; a < m; a++){
             int x = i + currentWorld.rand.nextInt(16);
-            int y = j + currentWorld.rand.nextInt(24) - 12;
             int z = k + currentWorld.rand.nextInt(16);
         	if(y < 4) y += 12;
         	if(currentWorld.getBlockId(x, y, z) == Block.stone.blockID && currentWorld.isAirBlock(x, y-1, z)){
@@ -117,12 +115,11 @@ public class DeadlyCaves implements ITickHandler{
         }
 	}
 	
-	public void causeEruption(World currentWorld, int i, int j, int k, List<ChunkCoordinates> lava, List<Integer> lavaChance){
-        int m = (16 - j) / 2 + 12; //12 to 19
+	public void causeEruption(World currentWorld, int i, int y, int k, List<ChunkCoordinates> lava, List<Integer> lavaChance){
+        int m = (16 - y) / 2 + 12; //12 to 19
         //find nearby lava source blocks with lava/stone/air above
         for(int a = 0; a < m; a++){
         	int x = i + currentWorld.rand.nextInt(16);
-        	int y = j + currentWorld.rand.nextInt(10) - 5;
         	int z = k + currentWorld.rand.nextInt(16);
             if(y < 4) y += 5;
         	if(currentWorld.getBlockId(x, y, z) == Block.lavaMoving.blockID && (currentWorld.isAirBlock(x, y + 1, z) || currentWorld.getBlockId(x, y + 1, z) == Block.stone.blockID || currentWorld.getBlockId(x, y + 1, z) == Block.lavaMoving.blockID || currentWorld.getBlockId(x, y + 1, z) == Block.lavaStill.blockID)){
@@ -135,17 +132,19 @@ public class DeadlyCaves implements ITickHandler{
 	public void handleFallStone(World currentWorld, List<ChunkCoordinates> fallingStones, List<Integer> fallingStonesChance){
 		//cycle through each coordinate : value (0-99 = time, 100-1100 = count)
         ChunkCoordinates c;
-        Block block;
+        Chunk chunk;
         for(int i = 0; i < fallingStones.size(); i++)
         {
-            int a = fallingStonesChance.get(i);
             c = fallingStones.get(i);
-            if(currentWorld.getBlockId(c.posX, c.posY, c.posZ) != Block.stone.blockID){
+            chunk = currentWorld.getChunkFromBlockCoords(c.posX, c.posZ);
+            if(chunk==null || !chunk.isChunkLoaded || currentWorld.getBlockId(c.posX, c.posY, c.posZ) != Block.stone.blockID){
                 fallingStones.remove(i);
                 fallingStonesChance.remove(i);
                 i--;
                 continue;
             }
+            int a = fallingStonesChance.get(i);
+            Block block;
 			//if value % 100 != 0
 				//spawn breaking particles under rock
             if(a % 100 != 0){
@@ -164,7 +163,7 @@ public class DeadlyCaves implements ITickHandler{
 			//Check above or side blocks(if valid spot and not in fallStones already) and add them to fallStones with 3 - 5 time, and 1 less count. 
             else{
         		block = Block.stone;
-                currentWorld.playSound((double)c.posX + 0.5F, (double)c.posY - 0.5F, (double)c.posZ + 0.5F, block.stepSound.stepSoundName, (block.stepSound.getVolume() + 2.0F) / 8F, block.stepSound.getPitch() * 0.5F, false);
+                currentWorld.playSoundEffect((double)c.posX + 0.5F, (double)c.posY - 0.5F, (double)c.posZ + 0.5F, block.stepSound.getBreakSound(), block.stepSound.getVolume() + 2.0F, block.stepSound.getPitch() * 0.5F);
         		EntityFallingSand entityfallingstone = new EntityFallingSand(currentWorld, (float)c.posX + 0.5F, (float)c.posY + 0.5F, (float)c.posZ + 0.5F, Block.stone.blockID);
                 currentWorld.spawnEntityInWorld(entityfallingstone);
                 
@@ -301,18 +300,19 @@ public class DeadlyCaves implements ITickHandler{
 	public void handleCaveIn(World currentWorld, List<ChunkCoordinates> caveinStones, List<Integer> caveinStonesChance){
 		//cycle through each coordinate : value (0-99 = time, 6000-66000 = count)
         ChunkCoordinates c;
-        Block block;
+        Chunk chunk;
         for(int i = 0; i < caveinStones.size(); i++)
         {
-        	int a = caveinStonesChance.get(i);
             c = caveinStones.get(i);
-            if(currentWorld.getBlockId(c.posX, c.posY, c.posZ) != Block.stone.blockID){
+            chunk = currentWorld.getChunkFromBlockCoords(c.posX, c.posZ);
+            if(chunk==null || !chunk.isChunkLoaded || currentWorld.getBlockId(c.posX, c.posY, c.posZ) != Block.stone.blockID){
                 caveinStones.remove(i);
                 caveinStonesChance.remove(i);
                 i--;
                 continue;
             }
-        		
+            int a = caveinStonesChance.get(i);
+            Block block;
 			//if value % 1000 != 0
 				//spawn breaking particles under rock
             if(a % 1000 != 0){
@@ -331,7 +331,7 @@ public class DeadlyCaves implements ITickHandler{
 			//Check above or side blocks(if valid spot and not in caveIn already) and add them to caveIn with 3 - 5 time, and 1 less count. 
             else{
             	block = Block.stone;
-        		currentWorld.playSound((float)c.posX + 0.5F, (float)c.posY - 0.5F, (float)c.posZ + 0.5F, block.stepSound.stepSoundName, (block.stepSound.getVolume() + 4.0F) / 8F, block.stepSound.getPitch() * 0.5F, false);
+        		currentWorld.playSoundEffect((float)c.posX + 0.5F, (float)c.posY - 0.5F, (float)c.posZ + 0.5F, block.stepSound.getBreakSound(), block.stepSound.getVolume() + 4.0F, block.stepSound.getPitch() * 0.5F);
         		EntityFallingSand entityfallingstone = new EntityFallingSand(currentWorld, (float)c.posX + 0.5F, (float)c.posY + 0.5F, (float)c.posZ + 0.5F, Block.stone.blockID);
                 currentWorld.spawnEntityInWorld(entityfallingstone);
                 
@@ -463,12 +463,13 @@ public class DeadlyCaves implements ITickHandler{
 	public void handleEruption(World currentWorld, List<ChunkCoordinates> lava, List<Integer> lavaChance){
 		//cycle through each coordinate : value (0-999 = time, 8000-96000 = count
         ChunkCoordinates c;
-        Block block;
+        Chunk chunk;
         for(int i = 0; i < lava.size(); i++)
         {
-        	int a = lavaChance.get(i);
             c = lava.get(i);
-            if(currentWorld.getBlockId(c.posX, c.posY, c.posZ) != Block.lavaMoving.blockID && currentWorld.getBlockId(c.posX, c.posY, c.posZ) != Block.lavaStill.blockID || a < 0){
+            chunk = currentWorld.getChunkFromBlockCoords(c.posX, c.posZ);
+            int a = lavaChance.get(i);
+            if(chunk==null || !chunk.isChunkLoaded || !(currentWorld.getBlockMaterial(c.posX, c.posY, c.posZ) == Material.lava) || a < 0){
                 lava.remove(i);
                 lavaChance.remove(i);
             	i--;
