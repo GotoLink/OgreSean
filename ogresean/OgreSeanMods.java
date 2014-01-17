@@ -53,8 +53,7 @@ public class OgreSeanMods {
 		}
 		pig = config.get("General", "Enable TalkingPig", false).getBoolean(false);
 
-        boolean caves = config.get("General", "Enable Deadly caves", true).getBoolean(true);
-        if(caves){
+        if(config.get("General", "Enable Deadly caves", true).getBoolean(true)){
             new DeadlyCaves().setConfigurationSettings(config);
         }
         config.save();
