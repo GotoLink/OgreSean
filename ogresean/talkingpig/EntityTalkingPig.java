@@ -13,9 +13,13 @@ import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.monster.EntityMob;
 import net.minecraft.entity.passive.EntityPig;
 import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.init.Blocks;
+import net.minecraft.init.Items;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.util.ChatComponentStyle;
+import net.minecraft.util.ChatComponentText;
 import net.minecraft.util.DamageSource;
 import net.minecraft.util.MathHelper;
 import net.minecraft.world.World;
@@ -44,7 +48,7 @@ public class EntityTalkingPig extends EntityPig {
 	protected ArrayList<EntityPig> pals;
 	private EntityPlayer owner;
 	public float moveSpeed;
-	static final HashMap<Integer, Integer> edibleFoods = new HashMap<Integer, Integer>();
+	static final HashMap<Item, Integer> edibleFoods = new HashMap<Item, Integer>();
 	static final public String names[] = new String[] { "Porky", "Gordo", "Oinkers", "Cuddles", "Pinky", "Snuggles", "Rex", "Snipper", "Molly", "Bubbles", "Nanders", "Pugsy", "Pickles", "Thunder",
 			"Piggy", "Blossom", "Sneers", "LePig", "Stompers", "Nameless", "Doug", "Earl", "Leena", "Guppers", "Martheon the Third", "Slushy", "Puckers" };
 	static final public String hurtPhrases[] = new String[] { "Ouch! Cut that out, you ugly $T$!", "Hey! Stop that $T$!", "Ugh! Leave me alone $T$!", "Get away from me, $T$!",
@@ -84,27 +88,27 @@ public class EntityTalkingPig extends EntityPig {
 	}
 
 	static {
-		edibleFoods.put(Item.feather.itemID, 260);
-		edibleFoods.put(Item.seeds.itemID, 380);
-		edibleFoods.put(Block.plantRed.blockID, 420);
-		edibleFoods.put(Block.plantYellow.blockID, 420);
-		edibleFoods.put(Block.pumpkin.blockID, 460);
-		edibleFoods.put(Item.bone.itemID, 480);
-		edibleFoods.put(Item.reed.itemID, 560);
-		edibleFoods.put(Item.sugar.itemID, 700);
-		edibleFoods.put(Item.slimeBall.itemID, 740);
-		edibleFoods.put(Item.wheat.itemID, 1000);
-		edibleFoods.put(Item.egg.itemID, 1200);
-		edibleFoods.put(Item.cookie.itemID, 1550);
-		edibleFoods.put(Item.fishRaw.itemID, 1800);
-		edibleFoods.put(Item.fishCooked.itemID, 2600);
-		edibleFoods.put(Item.bread.itemID, 3600);
-		edibleFoods.put(Item.appleRed.itemID, 3900);
-		edibleFoods.put(Block.mushroomBrown.blockID, 4200);
-		edibleFoods.put(Block.mushroomRed.blockID, 4200);
-		edibleFoods.put(Item.cake.itemID, 7200);
-		edibleFoods.put(Item.appleGold.itemID, 8800);
-		edibleFoods.put(Item.bowlSoup.itemID, 9600);
+		edibleFoods.put(Items.feather, 260);
+		edibleFoods.put(Items.wheat_seeds, 380);
+		edibleFoods.put(Item.func_150898_a(Blocks.red_flower), 420);
+		edibleFoods.put(Item.func_150898_a(Blocks.yellow_flower), 420);
+		edibleFoods.put(Item.func_150898_a(Blocks.pumpkin), 460);
+		edibleFoods.put(Items.bone, 480);
+		edibleFoods.put(Items.reeds, 560);
+		edibleFoods.put(Items.sugar, 700);
+		edibleFoods.put(Items.slime_ball, 740);
+		edibleFoods.put(Items.wheat, 1000);
+		edibleFoods.put(Items.egg, 1200);
+		edibleFoods.put(Items.cookie, 1550);
+		edibleFoods.put(Items.fish, 1800);
+		edibleFoods.put(Items.cooked_fished, 2600);
+		edibleFoods.put(Items.bread, 3600);
+		edibleFoods.put(Items.apple, 3900);
+		edibleFoods.put(Item.func_150898_a(Blocks.brown_mushroom), 4200);
+		edibleFoods.put(Item.func_150898_a(Blocks.red_mushroom), 4200);
+		edibleFoods.put(Items.cake, 7200);
+		edibleFoods.put(Items.golden_apple, 8800);
+		edibleFoods.put(Items.bowl, 9600);
 	}
 
 	@Override
@@ -141,10 +145,10 @@ public class EntityTalkingPig extends EntityPig {
 	@Override
 	public boolean interact(EntityPlayer entityplayer) {
 		ItemStack itemstack = entityplayer.inventory.getCurrentItem();
-		if (itemstack != null && (itemstack.itemID != Item.saddle.itemID) && (itemstack.itemID != Item.stick.itemID)) {
+		if (itemstack != null && (itemstack.getItem() != Items.saddle) && (itemstack.getItem() != Items.stick)) {
 			phraseTimer = 250;
 			String str = "";
-			if (itemstack.itemID == Item.appleGold.itemID) {
+			if (itemstack.getItem() == Items.golden_apple) {
 				experiencePoints = (skillLevel * (75 + skillLevel * 25)) + 1;
 				skillLevel++;
 				skillPoints++;
@@ -156,10 +160,10 @@ public class EntityTalkingPig extends EntityPig {
 				}
 			}
 			if (hunger > -6000) {
-				boolean flag = edibleFoods.containsKey(itemstack.itemID);
+				boolean flag = edibleFoods.containsKey(itemstack.getItem());
 				//
 				if (flag == true) {
-					hunger -= edibleFoods.get(itemstack.itemID);
+					hunger -= edibleFoods.get(itemstack.getItem());
 					entityplayer.inventory.decrStackSize(entityplayer.inventory.currentItem, 1);
 					if (hunger > 3600)
 						str = "Thanks. But, I'm still hungry...";
@@ -177,11 +181,11 @@ public class EntityTalkingPig extends EntityPig {
 					str = "I can't eat that!";
 			} else
 				str = "I couldn't eat another bite. I'm stuffed.";
-			entityplayer.addChatMessage("§a<".concat(getEntityName()).concat("> §e").concat(str));
+			entityplayer.func_146105_b(new ChatComponentText("ï¿½a<".concat(getCustomNameTag()).concat("> ï¿½e").concat(str)));
 			return true;
 		}//else if stick, show stat screen
-		else if (itemstack != null && itemstack.itemID == Item.stick.itemID && entityplayer.getCommandSenderName().equals(getOwnerName())) {
-			entityplayer.openGui(OgreSeanMods.instance, 0, worldObj, (int) posX, (int) posY, (int) posZ);
+		else if (itemstack != null && itemstack.getItem() == Items.stick && entityplayer.getCommandSenderName().equals(getOwnerName())) {
+			entityplayer.openGui(OgreSeanMods.instance, 0, worldObj, this.func_145782_y(), 0, 0);
 			return true;
 		} else
 			return super.interact(entityplayer);
@@ -206,9 +210,9 @@ public class EntityTalkingPig extends EntityPig {
 	public void onDeath(DamageSource d) {
 		Entity entity = d.getSourceOfDamage();
 		if (entity instanceof EntityPlayer) {
-			((EntityPlayer) entity).addChatMessage("§3You killed ".concat(getEntityName()).concat(". Enjoy your pork, you heartless monster."));
-			this.dropItem(Item.porkRaw.itemID, 4);
-			this.dropItem(Item.bone.itemID, 3);
+			((EntityPlayer) entity).func_146105_b(new ChatComponentText("ï¿½3You killed ".concat(getCustomNameTag()).concat(". Enjoy your pork, you heartless monster.")));
+			this.func_145779_a(Items.porkchop, 4);
+			this.func_145779_a(Items.bone, 3);
 		}
 		if (owner != null) {
 			owner.getEntityData().setBoolean("TalkingPigDead", true);
@@ -232,20 +236,20 @@ public class EntityTalkingPig extends EntityPig {
 		if (rand.nextFloat() < 0.01)
 			hunger -= endurance * 5;
 		if (hunger >= 3600 && hunger < 7200 && dist < 24 && status < 1) { //mildly hungry after 3 minutes
-			owner.addChatMessage("§a<".concat(getEntityName()).concat("> §e").concat("I'm hungry. Feed me some food!"));
+			owner.func_146105_b(new ChatComponentText("ï¿½a<".concat(getCustomNameTag()).concat("> ï¿½e").concat("I'm hungry. Feed me some food!")));
 			phraseTimer = 300;
 			status = 1;
 		} else if (hunger >= 7200 && hunger < 12000 && dist < 24 && status < 2) { //very hungry after 6 minutes
-			owner.addChatMessage("§a<".concat(getEntityName()).concat("> §e").concat("I'm starving! Feed me some food already!"));
+			owner.func_146105_b(new ChatComponentText("ï¿½a<".concat(getCustomNameTag()).concat("> ï¿½e").concat("I'm starving! Feed me some food already!")));
 			phraseTimer = 300;
 			status = 2;
 		} else if (hunger >= 12000 && hunger < 13200 && dist < 24 && status < 3) { //extremely hungry after 10 minutes
-			owner.addChatMessage("§a<".concat(getEntityName()).concat("> §e").concat("...cough....so....hungry...need....food...."));
+			owner.func_146105_b(new ChatComponentText("ï¿½a<".concat(getCustomNameTag()).concat("> ï¿½e").concat("...cough....so....hungry...need....food....")));
 			moveSpeed = 0.1F;
 			phraseTimer = 300;
 			status = 3;
 		} else if (hunger >= 13200 && dist < 24) { //dead after 11 minutes
-			owner.addChatMessage("§3You let ".concat(getEntityName()).concat(" starve to death. Such horrible neglect..."));
+			owner.func_146105_b(new ChatComponentText("ï¿½3You let ".concat(getCustomNameTag()).concat(" starve to death. Such horrible neglect...")));
 			setHealth(0);
 		}
 		//if had been hurt by player, gradually recover if healthy
@@ -264,7 +268,7 @@ public class EntityTalkingPig extends EntityPig {
 		else if (phraseTimer == 0) {
 			phraseTimer = 200 + rand.nextInt(401);
 			if (hunger > 12000)
-				owner.addChatMessage("§a<".concat(getEntityName()).concat("> §e").concat("So hungry...."));
+				owner.func_146105_b(new ChatComponentText("ï¿½a<".concat(getCustomNameTag()).concat("> ï¿½e").concat("So hungry....")));
 			else if (rand.nextFloat() < (0.15F + (skillLevel) / 50F)) //skillLevel influences mushroom finding rater
 				findMushroom();
 			else
@@ -561,7 +565,7 @@ public class EntityTalkingPig extends EntityPig {
 
 	private void findMushroom() {
 		boolean flag = false;
-		int bid = rand.nextFloat() < 0.5F ? Block.mushroomBrown.blockID : Block.mushroomRed.blockID;
+		Block bid = rand.nextFloat() < 0.5F ? Blocks.brown_mushroom : Blocks.red_mushroom;
 		int j = -1;
 		int k = -1;
 		int l = -1;
@@ -569,14 +573,14 @@ public class EntityTalkingPig extends EntityPig {
 			j = MathHelper.floor_double((posX + rand.nextInt(13)) - 6D);
 			k = MathHelper.floor_double((posY + rand.nextInt(7)) - 3D);
 			l = MathHelper.floor_double((posZ + rand.nextInt(13)) - 6D);
-			if (Block.blocksList[bid].canBlockStay(worldObj, j, k, l) && worldObj.isAirBlock(j, k, l)) {
+			if (bid.func_149718_j(worldObj, j, k, l) && worldObj.func_147437_c(j, k, l)) {
 				flag = true;
 				break;
 			}
 		}
-		if (flag == true) {
-			worldObj.setBlock(j, k, l, rand.nextFloat() < 0.5 ? Block.mushroomBrown.blockID : Block.mushroomRed.blockID, 0, 2);
-			owner.addChatMessage("§a<".concat(getEntityName()).concat("> §e").concat("I smell a mushroom close by!"));
+		if (flag) {
+			worldObj.func_147465_d(j, k, l, rand.nextFloat() < 0.5 ? Blocks.brown_mushroom : Blocks.red_mushroom, 0, 2);
+			owner.func_146105_b(new ChatComponentText("ï¿½a<".concat(getCustomNameTag()).concat("> ï¿½e").concat("I smell a mushroom close by!")));
 		}
 	}
 
@@ -593,7 +597,7 @@ public class EntityTalkingPig extends EntityPig {
 	}
 
 	private void sayAttackPhrase() {
-		owner.addChatMessage("§a<".concat(getEntityName()).concat("> §e").concat(attackPhrases[rand.nextInt(attackPhrases.length)]).replace("$T$", EntityList.getEntityString(entityToAttack)));
+		owner.func_146105_b(new ChatComponentText("ï¿½a<".concat(getCustomNameTag()).concat("> ï¿½e").concat(attackPhrases[rand.nextInt(attackPhrases.length)]).replace("$T$", EntityList.getEntityString(entityToAttack))));
 	}
 
 	private void sayHurt(Entity entity) {
@@ -632,10 +636,10 @@ public class EntityTalkingPig extends EntityPig {
 				break;
 			}
 		}
-		owner.addChatMessage("§a<".concat(getEntityName()).concat("> §e").concat(str.replace("$P$", getOwnerName())));
+		owner.func_146105_b(new ChatComponentText("ï¿½a<".concat(getCustomNameTag()).concat("> ï¿½e").concat(str.replace("$P$", getOwnerName()))));
 	}
 
 	private void sayIdlePhrase() {
-		owner.addChatMessage("§a<".concat(getEntityName()).concat("> §e").concat(idlePhrases[rand.nextInt(idlePhrases.length)]).replace("$P$", getOwnerName()));
+		owner.func_146105_b(new ChatComponentText("ï¿½a<".concat(getCustomNameTag()).concat("> ï¿½e").concat(idlePhrases[rand.nextInt(idlePhrases.length)]).replace("$P$", getOwnerName())));
 	}
 }

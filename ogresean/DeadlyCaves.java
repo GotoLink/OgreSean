@@ -2,21 +2,22 @@ package ogresean;
 
 import java.util.*;
 
-import cpw.mods.fml.common.ITickHandler;
-import cpw.mods.fml.common.TickType;
-import cpw.mods.fml.common.registry.TickRegistry;
-import cpw.mods.fml.relauncher.Side;
+import cpw.mods.fml.common.FMLCommonHandler;
+import cpw.mods.fml.common.eventhandler.SubscribeEvent;
+import cpw.mods.fml.common.gameevent.TickEvent;
+import cpw.mods.fml.common.registry.GameData;
 import net.minecraft.block.Block;
 import net.minecraft.block.material.Material;
-import net.minecraft.entity.item.EntityFallingSand;
+import net.minecraft.entity.item.EntityFallingBlock;
 import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.init.Blocks;
 import net.minecraft.util.ChunkCoordinates;
 import net.minecraft.util.MathHelper;
 import net.minecraft.world.World;
 import net.minecraft.world.chunk.Chunk;
-import net.minecraftforge.common.Configuration;
+import net.minecraftforge.common.config.Configuration;
 
-public class DeadlyCaves implements ITickHandler{
+public class DeadlyCaves{
 
     static int fallStoneFrequency = 65;
     static int caveInFrequency = 25;
@@ -31,8 +32,8 @@ public class DeadlyCaves implements ITickHandler{
     static Map<Integer, List<Integer>> caveInStonesI;
     static Map<Integer, List<ChunkCoordinates>> eruptionLavaC;
     static Map<Integer, List<Integer>> eruptionLavaI;
-    static Set<Integer> stones;
-    static Set<Integer> pierced;
+    static Set<Block> stones;
+    static Set<Block> pierced;
 
     public DeadlyCaves(){
 		fallStonesC = new HashMap<Integer, List<ChunkCoordinates>>();
@@ -41,8 +42,8 @@ public class DeadlyCaves implements ITickHandler{
 		fallStonesI = new HashMap<Integer, List<Integer>>();
 		caveInStonesI = new HashMap<Integer, List<Integer>>();
 		eruptionLavaI = new HashMap<Integer, List<Integer>>();
-        stones = new HashSet<Integer>();
-        pierced = new HashSet<Integer>();
+        stones = new HashSet<Block>();
+        pierced = new HashSet<Block>();
 	}
 	
 	public void setConfigurationSettings(Configuration config){
@@ -54,17 +55,17 @@ public class DeadlyCaves implements ITickHandler{
         caveInMagnitude = config.get("Deadly caves", "Cave In magnitude", 3).getInt();
         eruptionMagnitude = config.get("Deadly caves", "Eruption magnitude", 2).getInt();
         chunkRange = config.get("Deadly caves",  "Chunk range", 1, "Range around player(s) where caves events can occur").getInt();
-        for(int id :config.get("Deadly caves", "Falling Stones", new int[]{Block.stone.blockID}, "Blocks that should fall, by block id").getIntList()){
-            stones.add(id);
+        for(String id :config.get("Deadly caves", "Falling Stones", new String[]{"stone"}, "Blocks that should fall, by block name").getStringList()){
+            stones.add(GameData.blockRegistry.getObject(id));
         }
-        for(int id :config.get("Deadly caves", "Pierced by lava", new int[]{Block.dirt.blockID, Block.stone.blockID}, "Blocks that lava can pierce through, by block id").getIntList()){
-            pierced.add(id);
+        for(String id :config.get("Deadly caves", "Pierced by lava", new String[]{"dirt", "stone"}, "Blocks that lava can pierce through, by block id").getStringList()){
+            pierced.add(GameData.blockRegistry.getObject(id));
         }
         if(stones.size()==0){
             fallStoneFrequency = 0;
             caveInFrequency = 0;
         }
-        TickRegistry.registerTickHandler(this, Side.SERVER);
+        FMLCommonHandler.instance().bus().register(this);
     }
 	
 	public void onTickInGame(World currentWorld){
@@ -89,8 +90,8 @@ public class DeadlyCaves implements ITickHandler{
             int i = MathHelper.floor_double(player.posX / 16.0D);
             int k = MathHelper.floor_double(player.posZ / 16.0D);
             if(chunkRange>0){
-                i+=currentWorld.rand.nextInt(chunkRange*2)-chunkRange;
-                k+=currentWorld.rand.nextInt(chunkRange*2)-chunkRange;
+                i+=currentWorld.rand.nextInt(chunkRange*2+1)-chunkRange;
+                k+=currentWorld.rand.nextInt(chunkRange*2+1)-chunkRange;
             }
             Chunk chunk = null;
             if (currentWorld.getChunkProvider().chunkExists(i, k)) {
@@ -124,7 +125,7 @@ public class DeadlyCaves implements ITickHandler{
         	int x = i + currentWorld.rand.nextInt(16);
             int y = j + currentWorld.rand.nextInt(12);
         	int z = k + currentWorld.rand.nextInt(16);
-        	if(stones.contains(currentWorld.getBlockId(x, y, z)) && currentWorld.isAirBlock(x, y-1, z)){
+        	if(stones.contains(currentWorld.func_147439_a(x, y, z)) && currentWorld.func_147437_c(x, y - 1, z)){
         		fallingStones.add(new ChunkCoordinates(x, y, z));
         		fallingStonesChance.add(currentWorld.rand.nextInt(30) + 30 + (currentWorld.rand.nextInt(4) + 1) * 100 * fallStoneMagnitude);
         		break;
@@ -139,7 +140,7 @@ public class DeadlyCaves implements ITickHandler{
             int x = i + currentWorld.rand.nextInt(16);
             int y = j + currentWorld.rand.nextInt(12);
             int z = k + currentWorld.rand.nextInt(16);
-        	if(stones.contains(currentWorld.getBlockId(x, y, z)) && currentWorld.isAirBlock(x, y-1, z)){
+        	if(stones.contains(currentWorld.func_147439_a(x, y, z)) && currentWorld.func_147437_c(x, y - 1, z)){
         		caveinStones.add(new ChunkCoordinates(x, y, z));
         		caveinStonesChance.add(currentWorld.rand.nextInt(320) + 120 + (currentWorld.rand.nextInt(6) + 1) * 1000 * caveInMagnitude);
         		break;
@@ -154,10 +155,10 @@ public class DeadlyCaves implements ITickHandler{
         	int x = i + currentWorld.rand.nextInt(16);
             int y = currentWorld.rand.nextInt(j+1);
         	int z = k + currentWorld.rand.nextInt(16);
-        	while(currentWorld.getBlockMaterial(x, y, z) == Material.lava){
+        	while(currentWorld.func_147439_a(x, y, z).func_149688_o() == Material.field_151587_i){
                 y++;
             }
-            if(currentWorld.isAirBlock(x, y, z) || pierced.contains(currentWorld.getBlockId(x, y, z))){
+            if(currentWorld.func_147437_c(x, y, z) || pierced.contains(currentWorld.func_147439_a(x, y, z))){
         		lava.add(new ChunkCoordinates(x, y-1, z));
         		lavaChance.add(currentWorld.rand.nextInt(100) + 60 + (currentWorld.rand.nextInt(5) + 1) * 1000 * eruptionMagnitude);
         	}
@@ -172,32 +173,32 @@ public class DeadlyCaves implements ITickHandler{
         {
             c = fallingStones.get(i);
             chunk = currentWorld.getChunkFromBlockCoords(c.posX, c.posZ);
-            if(chunk==null || !chunk.isChunkLoaded || !stones.contains(currentWorld.getBlockId(c.posX, c.posY, c.posZ))){
+            if(chunk==null || !chunk.isChunkLoaded || !stones.contains(currentWorld.func_147439_a(c.posX, c.posY, c.posZ))){
                 fallingStones.remove(i);
                 fallingStonesChance.remove(i);
                 i--;
                 continue;
             }
             int a = fallingStonesChance.get(i);
-            Block block = Block.blocksList[currentWorld.getBlockId(c.posX, c.posY, c.posZ)];
+            Block block = currentWorld.func_147439_a(c.posX, c.posY, c.posZ);
 			//if value % 100 != 0
 				//spawn breaking particles under rock
             if(a % 100 != 0){
                 fallingStonesChance.set(i, a - 1);
             	if(currentWorld.rand.nextInt(25) > 0) continue;
                 float f = 0.1F;
-                double d = (double)c.posX + currentWorld.rand.nextDouble() * (block.getBlockBoundsMaxX() - block.getBlockBoundsMinX() - (double)(f * 2.0F)) + (double)f + block.getBlockBoundsMinX();
-                double d1 = ((double)c.posY + block.getBlockBoundsMinY()) - (double)f;
-                double d2 = (double)c.posZ + currentWorld.rand.nextDouble() * (block.getBlockBoundsMaxZ() - block.getBlockBoundsMinZ() - (double)(f * 2.0F)) + (double)f + block.getBlockBoundsMinZ();
-                currentWorld.spawnParticle("tilecrack_"+block.blockID+"_0", d, d1, d2, 0, 0, 0);
+                double d = (double)c.posX + currentWorld.rand.nextDouble() * (block.func_149753_y() - block.func_149704_x() - (double)(f * 2.0F)) + (double)f + block.func_149704_x();
+                double d1 = ((double)c.posY + block.func_149665_z()) - (double)f;
+                double d2 = (double)c.posZ + currentWorld.rand.nextDouble() * (block.func_149693_C() - block.func_149706_B() - (double)(f * 2.0F)) + (double)f + block.func_149706_B();
+                currentWorld.spawnParticle("blockcrack_"+Block.func_149682_b(block)+"_"+currentWorld.getBlockMetadata(c.posX, c.posY, c.posZ), d, d1, d2, 0, -0.4D, 0);
             }
 			//else
 			//make block breaking sound
 			//convert block to fallingSand(stone ID)
 			//Check above or side blocks(if valid spot and not in fallStones already) and add them to fallStones with 3 - 5 time, and 1 less count. 
             else{
-                currentWorld.playSoundEffect((double)c.posX + 0.5F, (double)c.posY - 0.5F, (double)c.posZ + 0.5F, block.stepSound.getBreakSound(), block.stepSound.getVolume(), block.stepSound.getPitch() * 1.5F);
-        		EntityFallingSand entityfallingstone = new EntityFallingSand(currentWorld, (float)c.posX + 0.5F, (float)c.posY + 0.5F, (float)c.posZ + 0.5F, block.blockID, currentWorld.getBlockMetadata(c.posX, c.posY, c.posZ));
+                currentWorld.playSoundEffect((double)c.posX + 0.5F, (double)c.posY - 0.5F, (double)c.posZ + 0.5F, block.field_149762_H.func_150496_b(), block.field_149762_H.func_150497_c(), block.field_149762_H.func_150494_d() * 1.5F);
+        		EntityFallingBlock entityfallingstone = new EntityFallingBlock(currentWorld, (float)c.posX + 0.5F, (float)c.posY + 0.5F, (float)c.posZ + 0.5F, block, currentWorld.getBlockMetadata(c.posX, c.posY, c.posZ));
                 currentWorld.spawnEntityInWorld(entityfallingstone);
                 
                 byte flags = 0;
@@ -210,7 +211,7 @@ public class DeadlyCaves implements ITickHandler{
                 			num++;
                 		else{
                 			flags |= 1;
-                			if(currentWorld.getBlockId(c.posX, c.posY + 1, c.posZ) == Block.stone.blockID){
+                			if(stones.contains(currentWorld.func_147439_a(c.posX, c.posY + 1, c.posZ))){
                 				ChunkCoordinates d = new ChunkCoordinates(c.posX, c.posY + 1, c.posZ);
                 				if(!fallingStones.contains(d)){
                 					count--;
@@ -228,11 +229,11 @@ public class DeadlyCaves implements ITickHandler{
                 		else{
                 			flags |= 2;
                 			int yplus = -50;
-                			if(stones.contains(currentWorld.getBlockId(c.posX + 1, c.posY, c.posZ)) && currentWorld.isAirBlock(c.posX + 1, c.posY - 1, c.posZ))
+                			if(stones.contains(currentWorld.func_147439_a(c.posX + 1, c.posY, c.posZ)) && currentWorld.func_147437_c(c.posX + 1, c.posY - 1, c.posZ))
                 				yplus = 0;
-                			else if(stones.contains(currentWorld.getBlockId(c.posX + 1, c.posY - 1, c.posZ)) && currentWorld.isAirBlock(c.posX + 1, c.posY - 2, c.posZ))
+                			else if(stones.contains(currentWorld.func_147439_a(c.posX + 1, c.posY - 1, c.posZ)) && currentWorld.func_147437_c(c.posX + 1, c.posY - 2, c.posZ))
                 				yplus = -1;
-                			else if(stones.contains(currentWorld.getBlockId(c.posX + 1, c.posY + 1, c.posZ)) && currentWorld.isAirBlock(c.posX + 1, c.posY, c.posZ))
+                			else if(stones.contains(currentWorld.func_147439_a(c.posX + 1, c.posY + 1, c.posZ)) && currentWorld.func_147437_c(c.posX + 1, c.posY, c.posZ))
                 				yplus = 1;
                 			
                 			if(yplus != -50){
@@ -254,11 +255,11 @@ public class DeadlyCaves implements ITickHandler{
                 		else{
                 			flags |= 4;
                 			int yplus = -50;
-                			if(stones.contains(currentWorld.getBlockId(c.posX - 1, c.posY, c.posZ)) && currentWorld.isAirBlock(c.posX - 1, c.posY - 1, c.posZ))
+                			if(stones.contains(currentWorld.func_147439_a(c.posX - 1, c.posY, c.posZ)) && currentWorld.func_147437_c(c.posX - 1, c.posY - 1, c.posZ))
                 				yplus = 0;
-                			else if(stones.contains(currentWorld.getBlockId(c.posX - 1, c.posY - 1, c.posZ)) && currentWorld.isAirBlock(c.posX - 1, c.posY - 2, c.posZ))
+                			else if(stones.contains(currentWorld.func_147439_a(c.posX - 1, c.posY - 1, c.posZ)) && currentWorld.func_147437_c(c.posX - 1, c.posY - 2, c.posZ))
                 				yplus = -1;
-                			else if(stones.contains(currentWorld.getBlockId(c.posX - 1, c.posY + 1, c.posZ)) && currentWorld.isAirBlock(c.posX - 1, c.posY, c.posZ))
+                			else if(stones.contains(currentWorld.func_147439_a(c.posX - 1, c.posY + 1, c.posZ)) && currentWorld.func_147437_c(c.posX - 1, c.posY, c.posZ))
                 				yplus = 1;
                 			
                 			if(yplus != -50){
@@ -279,11 +280,11 @@ public class DeadlyCaves implements ITickHandler{
                 		else{
                 			flags |= 8;
                 			int yplus = -50;
-                			if(stones.contains(currentWorld.getBlockId(c.posX, c.posY, c.posZ + 1)) && currentWorld.isAirBlock(c.posX, c.posY - 1, c.posZ + 1))
+                			if(stones.contains(currentWorld.func_147439_a(c.posX, c.posY, c.posZ + 1)) && currentWorld.func_147437_c(c.posX, c.posY - 1, c.posZ + 1))
                 				yplus = 0;
-                			else if(stones.contains(currentWorld.getBlockId(c.posX, c.posY - 1, c.posZ + 1)) && currentWorld.isAirBlock(c.posX, c.posY - 2, c.posZ + 1))
+                			else if(stones.contains(currentWorld.func_147439_a(c.posX, c.posY - 1, c.posZ + 1)) && currentWorld.func_147437_c(c.posX, c.posY - 2, c.posZ + 1))
                 				yplus = -1;
-                			else if(stones.contains(currentWorld.getBlockId(c.posX, c.posY + 1, c.posZ + 1)) && currentWorld.isAirBlock(c.posX, c.posY, c.posZ + 1))
+                			else if(stones.contains(currentWorld.func_147439_a(c.posX, c.posY + 1, c.posZ + 1)) && currentWorld.func_147437_c(c.posX, c.posY, c.posZ + 1))
                 				yplus = 1;
                 			
                 			if(yplus != -50){
@@ -304,11 +305,11 @@ public class DeadlyCaves implements ITickHandler{
                 		else{
                 			flags |= 16;
                 			int yplus = -50;
-                			if(stones.contains(currentWorld.getBlockId(c.posX, c.posY, c.posZ - 1)) && currentWorld.isAirBlock(c.posX, c.posY - 1, c.posZ - 1))
+                			if(stones.contains(currentWorld.func_147439_a(c.posX, c.posY, c.posZ - 1)) && currentWorld.func_147437_c(c.posX, c.posY - 1, c.posZ - 1))
                 				yplus = 0;
-                			else if(stones.contains(currentWorld.getBlockId(c.posX, c.posY - 1, c.posZ - 1)) && currentWorld.isAirBlock(c.posX, c.posY - 2, c.posZ - 1))
+                			else if(stones.contains(currentWorld.func_147439_a(c.posX, c.posY - 1, c.posZ - 1)) && currentWorld.func_147437_c(c.posX, c.posY - 2, c.posZ - 1))
                 				yplus = -1;
-                			else if(stones.contains(currentWorld.getBlockId(c.posX, c.posY + 1, c.posZ - 1)) && currentWorld.isAirBlock(c.posX, c.posY, c.posZ - 1))
+                			else if(stones.contains(currentWorld.func_147439_a(c.posX, c.posY + 1, c.posZ - 1)) && currentWorld.func_147437_c(c.posX, c.posY, c.posZ - 1))
                 				yplus = 1;
                 			
                 			if(yplus != -50){
@@ -338,32 +339,32 @@ public class DeadlyCaves implements ITickHandler{
         {
             c = caveinStones.get(i);
             chunk = currentWorld.getChunkFromBlockCoords(c.posX, c.posZ);
-            if(chunk==null || !chunk.isChunkLoaded || !stones.contains(currentWorld.getBlockId(c.posX, c.posY, c.posZ))){
+            if(chunk==null || !chunk.isChunkLoaded || !stones.contains(currentWorld.func_147439_a(c.posX, c.posY, c.posZ))){
                 caveinStones.remove(i);
                 caveinStonesChance.remove(i);
                 i--;
                 continue;
             }
             int a = caveinStonesChance.get(i);
-            Block block = Block.blocksList[currentWorld.getBlockId(c.posX, c.posY, c.posZ)];
+            Block block = currentWorld.func_147439_a(c.posX, c.posY, c.posZ);
 			//if value % 1000 != 0
 				//spawn breaking particles under rock
             if(a % 1000 != 0){
                 caveinStonesChance.set(i, a - 1);
             	if(currentWorld.rand.nextInt(20) > 0) continue;
                 float f = 0.1F;
-                double d = (double)c.posX + currentWorld.rand.nextDouble() * (block.getBlockBoundsMaxX() - block.getBlockBoundsMinX() - (double)(f * 2.0F)) + (double)f + block.getBlockBoundsMinX();
-                double d1 = ((double)c.posY + block.getBlockBoundsMinY()) - (double)f;
-                double d2 = (double)c.posZ + currentWorld.rand.nextDouble() * (block.getBlockBoundsMaxX() - block.getBlockBoundsMinZ() - (double)(f * 2.0F)) + (double)f + block.getBlockBoundsMinZ();
-                currentWorld.spawnParticle("tilecrack_"+block.blockID+"_0", d, d1, d2, 0, 0, 0);
+                double d = (double)c.posX + currentWorld.rand.nextDouble() * (block.func_149753_y() - block.func_149704_x() - (double)(f * 2.0F)) + (double)f + block.func_149704_x();
+                double d1 = ((double)c.posY + block.func_149665_z()) - (double)f;
+                double d2 = (double)c.posZ + currentWorld.rand.nextDouble() * (block.func_149693_C() - block.func_149706_B() - (double)(f * 2.0F)) + (double)f + block.func_149706_B();
+                currentWorld.spawnParticle("blockcrack_"+Block.func_149682_b(block)+"_"+currentWorld.getBlockMetadata(c.posX, c.posY, c.posZ), d, d1, d2, 0, -0.4D, 0);
             }
 			//else
 			//make block breaking sound
 			//convert block to fallingSand(stone ID)
 			//Check above or side blocks(if valid spot and not in caveIn already) and add them to caveIn with 3 - 5 time, and 1 less count. 
             else{
-        		currentWorld.playSoundEffect((float)c.posX + 0.5F, (float)c.posY - 0.5F, (float)c.posZ + 0.5F, block.stepSound.getBreakSound(), block.stepSound.getVolume(), block.stepSound.getPitch() * 1.5F);
-        		EntityFallingSand entityfallingstone = new EntityFallingSand(currentWorld, (float)c.posX + 0.5F, (float)c.posY + 0.5F, (float)c.posZ + 0.5F, block.blockID, currentWorld.getBlockMetadata(c.posX, c.posY, c.posZ));
+        		currentWorld.playSoundEffect((float)c.posX + 0.5F, (float)c.posY - 0.5F, (float)c.posZ + 0.5F, block.field_149762_H.func_150496_b(), block.field_149762_H.func_150497_c(), block.field_149762_H.func_150494_d() * 1.5F);
+                EntityFallingBlock entityfallingstone = new EntityFallingBlock(currentWorld, (float)c.posX + 0.5F, (float)c.posY + 0.5F, (float)c.posZ + 0.5F, block, currentWorld.getBlockMetadata(c.posX, c.posY, c.posZ));
                 currentWorld.spawnEntityInWorld(entityfallingstone);
                 
                 byte flags = 0;
@@ -376,7 +377,7 @@ public class DeadlyCaves implements ITickHandler{
                 			num++;
                 		else{
                 			flags |= 1;
-                			if(stones.contains(currentWorld.getBlockId(c.posX, c.posY + 1, c.posZ))){
+                			if(stones.contains(currentWorld.func_147439_a(c.posX, c.posY + 1, c.posZ))){
                 				ChunkCoordinates d = new ChunkCoordinates(c.posX, c.posY + 1, c.posZ);
                 				if(!caveinStones.contains(d)){
                                     caveinStones.add(d);
@@ -393,11 +394,11 @@ public class DeadlyCaves implements ITickHandler{
                 		else{
                 			flags |= 2;
                 			int yplus = -50;
-                			if(stones.contains(currentWorld.getBlockId(c.posX + 1, c.posY, c.posZ)) && currentWorld.isAirBlock(c.posX + 1, c.posY - 1, c.posZ))
+                			if(stones.contains(currentWorld.func_147439_a(c.posX + 1, c.posY, c.posZ)) && currentWorld.func_147437_c(c.posX + 1, c.posY - 1, c.posZ))
                 				yplus = 0;
-                			else if(stones.contains(currentWorld.getBlockId(c.posX + 1, c.posY - 1, c.posZ)) && currentWorld.isAirBlock(c.posX + 1, c.posY - 2, c.posZ))
+                			else if(stones.contains(currentWorld.func_147439_a(c.posX + 1, c.posY - 1, c.posZ)) && currentWorld.func_147437_c(c.posX + 1, c.posY - 2, c.posZ))
                 				yplus = -1;
-                			else if(stones.contains(currentWorld.getBlockId(c.posX + 1, c.posY + 1, c.posZ)) && currentWorld.isAirBlock(c.posX + 1, c.posY, c.posZ))
+                			else if(stones.contains(currentWorld.func_147439_a(c.posX + 1, c.posY + 1, c.posZ)) && currentWorld.func_147437_c(c.posX + 1, c.posY, c.posZ))
                 				yplus = 1;
                 			
                 			if(yplus != -50){
@@ -417,11 +418,11 @@ public class DeadlyCaves implements ITickHandler{
                 		else{
                 			flags |= 4;
                 			int yplus = -50;
-                			if(stones.contains(currentWorld.getBlockId(c.posX - 1, c.posY, c.posZ)) && currentWorld.isAirBlock(c.posX - 1, c.posY - 1, c.posZ))
+                			if(stones.contains(currentWorld.func_147439_a(c.posX - 1, c.posY, c.posZ)) && currentWorld.func_147437_c(c.posX - 1, c.posY - 1, c.posZ))
                 				yplus = 0;
-                			else if(stones.contains(currentWorld.getBlockId(c.posX - 1, c.posY - 1, c.posZ)) && currentWorld.isAirBlock(c.posX - 1, c.posY - 2, c.posZ))
+                			else if(stones.contains(currentWorld.func_147439_a(c.posX - 1, c.posY - 1, c.posZ)) && currentWorld.func_147437_c(c.posX - 1, c.posY - 2, c.posZ))
                 				yplus = -1;
-                			else if(stones.contains(currentWorld.getBlockId(c.posX - 1, c.posY + 1, c.posZ)) && currentWorld.isAirBlock(c.posX - 1, c.posY, c.posZ))
+                			else if(stones.contains(currentWorld.func_147439_a(c.posX - 1, c.posY + 1, c.posZ)) && currentWorld.func_147437_c(c.posX - 1, c.posY, c.posZ))
                 				yplus = 1;
                 			
                 			if(yplus != -50){
@@ -441,11 +442,11 @@ public class DeadlyCaves implements ITickHandler{
                 		else{
                 			flags |= 8;
                 			int yplus = -50;
-                			if(stones.contains(currentWorld.getBlockId(c.posX, c.posY, c.posZ + 1)) && currentWorld.isAirBlock(c.posX, c.posY - 1, c.posZ + 1))
+                			if(stones.contains(currentWorld.func_147439_a(c.posX, c.posY, c.posZ + 1)) && currentWorld.func_147437_c(c.posX, c.posY - 1, c.posZ + 1))
                 				yplus = 0;
-                			else if(stones.contains(currentWorld.getBlockId(c.posX, c.posY - 1, c.posZ + 1)) && currentWorld.isAirBlock(c.posX, c.posY - 2, c.posZ + 1))
+                			else if(stones.contains(currentWorld.func_147439_a(c.posX, c.posY - 1, c.posZ + 1)) && currentWorld.func_147437_c(c.posX, c.posY - 2, c.posZ + 1))
                 				yplus = -1;
-                			else if(stones.contains(currentWorld.getBlockId(c.posX, c.posY + 1, c.posZ + 1)) && currentWorld.isAirBlock(c.posX, c.posY, c.posZ + 1))
+                			else if(stones.contains(currentWorld.func_147439_a(c.posX, c.posY + 1, c.posZ + 1)) && currentWorld.func_147437_c(c.posX, c.posY, c.posZ + 1))
                 				yplus = 1;
                 			
                 			if(yplus != -50){
@@ -465,11 +466,11 @@ public class DeadlyCaves implements ITickHandler{
                 		else{
                 			flags |= 16;
                 			int yplus = -50;
-                			if(stones.contains(currentWorld.getBlockId(c.posX, c.posY, c.posZ - 1)) && currentWorld.isAirBlock(c.posX, c.posY - 1, c.posZ - 1))
+                			if(stones.contains(currentWorld.func_147439_a(c.posX, c.posY, c.posZ - 1)) && currentWorld.func_147437_c(c.posX, c.posY - 1, c.posZ - 1))
                 				yplus = 0;
-                			else if(stones.contains(currentWorld.getBlockId(c.posX, c.posY - 1, c.posZ - 1)) && currentWorld.isAirBlock(c.posX, c.posY - 2, c.posZ - 1))
+                			else if(stones.contains(currentWorld.func_147439_a(c.posX, c.posY - 1, c.posZ - 1)) && currentWorld.func_147437_c(c.posX, c.posY - 2, c.posZ - 1))
                 				yplus = -1;
-                			else if(stones.contains(currentWorld.getBlockId(c.posX, c.posY + 1, c.posZ - 1)) && currentWorld.isAirBlock(c.posX, c.posY, c.posZ - 1))
+                			else if(stones.contains(currentWorld.func_147439_a(c.posX, c.posY + 1, c.posZ - 1)) && currentWorld.func_147437_c(c.posX, c.posY, c.posZ - 1))
                 				yplus = 1;
                 			
                 			if(yplus != -50){
@@ -500,7 +501,7 @@ public class DeadlyCaves implements ITickHandler{
             c = lava.get(i);
             chunk = currentWorld.getChunkFromBlockCoords(c.posX, c.posZ);
             int a = lavaChance.get(i);
-            if(chunk==null || !chunk.isChunkLoaded || !(currentWorld.getBlockMaterial(c.posX, c.posY, c.posZ) == Material.lava) || a < 0){
+            if(chunk==null || !chunk.isChunkLoaded || !(currentWorld.func_147439_a(c.posX, c.posY, c.posZ).func_149688_o() == Material.field_151587_i) || a < 0){
                 lava.remove(i);
                 lavaChance.remove(i);
             	i--;
@@ -513,7 +514,7 @@ public class DeadlyCaves implements ITickHandler{
                 lavaChance.set(i, a - 1);
             	if(currentWorld.rand.nextInt(18) > 0) continue;
             	double d = (float)c.posX + currentWorld.rand.nextFloat();
-                double d1 = (double)c.posY + Block.lavaMoving.getBlockBoundsMaxY();
+                double d1 = (double)c.posY + Blocks.flowing_lava.func_149669_A();
                 double d2 = (float)c.posZ + currentWorld.rand.nextFloat();
                 currentWorld.spawnParticle("lava", d, d1, d2, 0.0D, 0.0D, 0.0D);
             }
@@ -524,16 +525,16 @@ public class DeadlyCaves implements ITickHandler{
             else{
             	if(currentWorld.rand.nextInt(4) > 0)
                     currentWorld.playSoundEffect((double) ((float) c.posX + 0.5F), ((double) (float) c.posY - 0.5F), ((double) (float) c.posZ + 0.5F), "random.fizz", 0.4F, 0.5F);
-        		if(currentWorld.isAirBlock(c.posX, c.posY + 1, c.posZ) || pierced.contains(currentWorld.getBlockId(c.posX, c.posY + 1, c.posZ)) || currentWorld.getBlockId(c.posX, c.posY + 1, c.posZ) == Block.lavaStill.blockID)
-        			currentWorld.setBlock(c.posX, c.posY + 1, c.posZ, Block.lavaMoving.blockID, 0, 2);
-        		if(currentWorld.isAirBlock(c.posX + 1, c.posY, c.posZ) || pierced.contains(currentWorld.getBlockId(c.posX + 1, c.posY, c.posZ)) || currentWorld.getBlockId(c.posX + 1, c.posY, c.posZ) == Block.lavaStill.blockID)
-        			currentWorld.setBlock(c.posX + 1, c.posY, c.posZ, Block.lavaMoving.blockID, 0, 2);
-        		if(currentWorld.isAirBlock(c.posX - 1, c.posY, c.posZ) || pierced.contains(currentWorld.getBlockId(c.posX - 1, c.posY, c.posZ)) || currentWorld.getBlockId(c.posX - 1, c.posY, c.posZ) == Block.lavaStill.blockID)
-        			currentWorld.setBlock(c.posX - 1, c.posY, c.posZ, Block.lavaMoving.blockID, 0, 2);
-        		if(currentWorld.isAirBlock(c.posX, c.posY, c.posZ + 1) || pierced.contains(currentWorld.getBlockId(c.posX, c.posY, c.posZ + 1)) || currentWorld.getBlockId(c.posX, c.posY, c.posZ + 1) == Block.lavaStill.blockID)
-        			currentWorld.setBlock(c.posX, c.posY, c.posZ + 1, Block.lavaMoving.blockID, 0, 2);
-        		if(currentWorld.isAirBlock(c.posX, c.posY, c.posZ - 1) || pierced.contains(currentWorld.getBlockId(c.posX, c.posY, c.posZ - 1)) || currentWorld.getBlockId(c.posX, c.posY, c.posZ - 1) == Block.lavaStill.blockID)
-        			currentWorld.setBlock(c.posX, c.posY, c.posZ - 1, Block.lavaMoving.blockID, 0, 2);
+        		if(currentWorld.func_147437_c(c.posX, c.posY + 1, c.posZ) || pierced.contains(currentWorld.func_147439_a(c.posX, c.posY + 1, c.posZ)) || currentWorld.func_147439_a(c.posX, c.posY + 1, c.posZ) == Blocks.lava)
+        			currentWorld.func_147465_d(c.posX, c.posY + 1, c.posZ, Blocks.flowing_lava, 0, 2);
+        		if(currentWorld.func_147437_c(c.posX + 1, c.posY, c.posZ) || pierced.contains(currentWorld.func_147439_a(c.posX + 1, c.posY, c.posZ)) || currentWorld.func_147439_a(c.posX + 1, c.posY, c.posZ) == Blocks.lava)
+        			currentWorld.func_147465_d(c.posX + 1, c.posY, c.posZ, Blocks.flowing_lava, 0, 2);
+        		if(currentWorld.func_147437_c(c.posX - 1, c.posY, c.posZ) || pierced.contains(currentWorld.func_147439_a(c.posX - 1, c.posY, c.posZ)) || currentWorld.func_147439_a(c.posX - 1, c.posY, c.posZ) == Blocks.lava)
+        			currentWorld.func_147465_d(c.posX - 1, c.posY, c.posZ, Blocks.flowing_lava, 0, 2);
+        		if(currentWorld.func_147437_c(c.posX, c.posY, c.posZ + 1) || pierced.contains(currentWorld.func_147439_a(c.posX, c.posY, c.posZ + 1)) || currentWorld.func_147439_a(c.posX, c.posY, c.posZ + 1) == Blocks.lava)
+        			currentWorld.func_147465_d(c.posX, c.posY, c.posZ + 1, Blocks.flowing_lava, 0, 2);
+        		if(currentWorld.func_147437_c(c.posX, c.posY, c.posZ - 1) || pierced.contains(currentWorld.func_147439_a(c.posX, c.posY, c.posZ - 1)) || currentWorld.func_147439_a(c.posX, c.posY, c.posZ - 1) == Blocks.lava)
+        			currentWorld.func_147465_d(c.posX, c.posY, c.posZ - 1, Blocks.flowing_lava, 0, 2);
 
                 byte flags = 0;
                 int count = a / 1000 - 1;
@@ -545,7 +546,7 @@ public class DeadlyCaves implements ITickHandler{
                 			num++;
                 		else{
                 			flags |= 1;
-                			if(currentWorld.getBlockId(c.posX, c.posY + 1, c.posZ) == Block.lavaMoving.blockID){
+                			if(currentWorld.func_147439_a(c.posX, c.posY + 1, c.posZ) == Blocks.flowing_lava){
                 				ChunkCoordinates d = new ChunkCoordinates(c.posX, c.posY + 1, c.posZ);
                 				if(!lava.contains(d)){
                                     lava.add(d);
@@ -562,7 +563,7 @@ public class DeadlyCaves implements ITickHandler{
                 		else{
                 			flags |= 2;
 
-                			if(currentWorld.getBlockId(c.posX + 1, c.posY, c.posZ) == Block.lavaMoving.blockID){
+                			if(currentWorld.func_147439_a(c.posX + 1, c.posY, c.posZ) == Blocks.flowing_lava){
                 				ChunkCoordinates d = new ChunkCoordinates(c.posX + 1, c.posY + 1, c.posZ);
                 				if(!lava.contains(d)){
                                     lava.add(d);
@@ -579,7 +580,7 @@ public class DeadlyCaves implements ITickHandler{
                 		else{
                 			flags |= 4;
 
-                			if(currentWorld.getBlockId(c.posX - 1, c.posY, c.posZ) == Block.lavaMoving.blockID){
+                			if(currentWorld.func_147439_a(c.posX - 1, c.posY, c.posZ) == Blocks.flowing_lava){
                 				ChunkCoordinates d = new ChunkCoordinates(c.posX - 1, c.posY, c.posZ);
                 				if(!lava.contains(d)){
                                     lava.add(d);
@@ -596,7 +597,7 @@ public class DeadlyCaves implements ITickHandler{
                 		else{
                 			flags |= 8;
 
-                			if(currentWorld.getBlockId(c.posX, c.posY, c.posZ + 1) == Block.lavaMoving.blockID){
+                			if(currentWorld.func_147439_a(c.posX, c.posY, c.posZ + 1) == Blocks.flowing_lava){
                 				ChunkCoordinates d = new ChunkCoordinates(c.posX, c.posY, c.posZ + 1);
                 				if(!lava.contains(d)){
                                     lava.add(d);
@@ -612,7 +613,7 @@ public class DeadlyCaves implements ITickHandler{
                 			num = 0;
                 		else{
                 			flags |= 16;
-                			if(currentWorld.getBlockId(c.posX, c.posY, c.posZ - 1) == Block.lavaMoving.blockID){
+                			if(currentWorld.func_147439_a(c.posX, c.posY, c.posZ - 1) == Blocks.flowing_lava){
                 				ChunkCoordinates d = new ChunkCoordinates(c.posX, c.posY, c.posZ - 1);
                 				if(!lava.contains(d)){
                                     lava.add(d);
@@ -630,23 +631,10 @@ public class DeadlyCaves implements ITickHandler{
         }
 	}
 
-    @Override
-    public void tickStart(EnumSet<TickType> tickTypes, Object... data) {
-
-    }
-
-    @Override
-    public void tickEnd(EnumSet<TickType> tickTypes, Object... data) {
-        onTickInGame((World) data[0]);
-    }
-
-    @Override
-    public EnumSet<TickType> ticks() {
-        return EnumSet.of(TickType.WORLD);
-    }
-
-    @Override
-    public String getLabel() {
-        return "Deadly caves tick";
+    @SubscribeEvent
+    public void tickEnd(TickEvent.WorldTickEvent event){
+        if(event.side.isServer() && event.phase == TickEvent.Phase.END){
+            onTickInGame(event.world);
+        }
     }
 }

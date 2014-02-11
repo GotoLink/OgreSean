@@ -5,7 +5,8 @@ import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.SharedMonsterAttributes;
 import net.minecraft.entity.passive.EntityChicken;
 import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.item.Item;
+import net.minecraft.init.Items;
+import net.minecraft.item.ItemStack;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.world.World;
 import net.minecraft.world.biome.BiomeGenBase;
@@ -39,7 +40,7 @@ public class BBEntityMeatEaterBat extends BBEntityBat {
 
 	@Override
 	public ResourceLocation getTexture() {
-		return new ResourceLocation("ogresean", "textures/bat/meatEaterBat.png");
+		return meatEater;
 	}
 
 	@Override
@@ -51,7 +52,7 @@ public class BBEntityMeatEaterBat extends BBEntityBat {
 	@Override
 	protected void awakeUpdate() {
 		super.awakeUpdate();
-		if (!isRabid && rand.nextInt(400) == 0 && worldObj.difficultySetting > 0)
+		if (!isRabid && rand.nextInt(400) == 0 && worldObj.difficultySetting.ordinal() > 0)
 			isRabid = true;
 	}
 
@@ -71,7 +72,7 @@ public class BBEntityMeatEaterBat extends BBEntityBat {
 	 */
 	@Override
 	protected double getBonusVelocity() {
-		return (rand.nextInt(2 + worldObj.difficultySetting * 3) + 2 + worldObj.difficultySetting);
+		return (rand.nextInt(2 + worldObj.difficultySetting.ordinal() * 3) + 2 + worldObj.difficultySetting.ordinal());
 	}
 
 	/**
@@ -80,7 +81,7 @@ public class BBEntityMeatEaterBat extends BBEntityBat {
 	 */
 	@Override
 	protected double getBonusVelocity2() {
-		return 0.34D + worldObj.difficultySetting * 0.011D;
+		return 0.34D + worldObj.difficultySetting.ordinal() * 0.011D;
 	}
 
 	/**
@@ -140,8 +141,8 @@ public class BBEntityMeatEaterBat extends BBEntityBat {
 	}
 
 	@Override
-	protected boolean isTamingItemID(int id) {
-		return isRabid ? false : id == Item.fishRaw.itemID;
+	protected boolean isTamingItemID(ItemStack id) {
+		return isRabid ? false : (id!=null && id.getItem() == Items.fish);
 	}
 
 	@Override

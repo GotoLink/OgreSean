@@ -4,8 +4,11 @@ import java.util.Arrays;
 
 import net.minecraft.block.Block;
 import net.minecraft.entity.Entity;
-import net.minecraft.entity.EntityLiving;
+import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.SharedMonsterAttributes;
+import net.minecraft.init.Blocks;
+import net.minecraft.item.Item;
+import net.minecraft.item.ItemStack;
 import net.minecraft.util.DamageSource;
 import net.minecraft.util.MathHelper;
 import net.minecraft.util.ResourceLocation;
@@ -79,7 +82,7 @@ public class BBEntityNectarBat extends BBEntityBat {
 
 	@Override
 	public ResourceLocation getTexture() {
-		return new ResourceLocation("ogresean", "textures/bat/nectarBat.png");
+		return nectar;
 	}
 
 	@Override
@@ -141,7 +144,7 @@ public class BBEntityNectarBat extends BBEntityBat {
 	 */
 	@Override
 	protected double getBonusVelocity() {
-		return (rand.nextInt(1 + worldObj.difficultySetting * 2) + 2 + worldObj.difficultySetting);
+		return (rand.nextInt(1 + worldObj.difficultySetting.ordinal() * 2) + 2 + worldObj.difficultySetting.ordinal());
 	}
 
 	/**
@@ -150,7 +153,7 @@ public class BBEntityNectarBat extends BBEntityBat {
 	 */
 	@Override
 	protected double getBonusVelocity2() {
-		return 0.007D + worldObj.difficultySetting * 0.007D;
+		return 0.007D + worldObj.difficultySetting.ordinal() * 0.007D;
 	}
 
 	/**
@@ -205,26 +208,27 @@ public class BBEntityNectarBat extends BBEntityBat {
 
 	@Override
 	protected boolean isFavoredTravelBlock(int i, int j, int k) {
-		return flowerTimer < 0 ? false : worldObj.getBlockId(i, j, k) == Block.plantRed.blockID || worldObj.getBlockId(i, j, k) == Block.plantYellow.blockID;
+		return flowerTimer < 0 ? false : worldObj.func_147439_a(i, j, k) == Blocks.red_flower || worldObj.func_147439_a(i, j, k) == Blocks.yellow_flower;
 	}
 
 	@Override
 	protected boolean isInvalidTravelBlock(int i, int j, int k) {
-		return worldObj.getBlockId(i, j, k) != 0 && !isFavoredTravelBlock(i, j, k);
+		return worldObj.func_147439_a(i, j, k) != Blocks.air && !isFavoredTravelBlock(i, j, k);
 	}
 
 	@Override
-	protected boolean isLooseBlock(int bid) {
-		return bid == Block.torchWood.blockID || bid == Block.crops.blockID || bid == Block.torchRedstoneActive.blockID || bid == Block.torchRedstoneIdle.blockID || bid == Block.sapling.blockID
-				|| bid == Block.reed.blockID || bid == Block.signPost.blockID || bid == Block.redstoneWire.blockID || bid == Block.mushroomBrown.blockID || bid == Block.mushroomRed.blockID;
+	protected boolean isLooseBlock(Block bid) {
+		return bid == Blocks.torch || bid == Blocks.wheat || bid == Blocks.unlit_redstone_torch || bid == Blocks.redstone_torch || bid == Blocks.sapling
+				|| bid == Blocks.reeds || bid == Blocks.standing_sign || bid == Blocks.redstone_wire || bid == Blocks.brown_mushroom || bid == Blocks.red_mushroom;
 	}
 
 	@Override
-	protected boolean isTamingItemID(int id) {
-		return id == Block.plantYellow.blockID || id == Block.plantRed.blockID;
+	protected boolean isTamingItemID(ItemStack id) {
+		return id !=null &&(id.getItem() == Item.func_150898_a(Blocks.yellow_flower) || id.getItem() == Item.func_150898_a(Blocks.red_flower));
 	}
 
-	protected boolean isValidTarget(EntityLiving el) {
+    @Override
+	protected boolean isValidTarget(EntityLivingBase el) {
 		return false;
 	}
 

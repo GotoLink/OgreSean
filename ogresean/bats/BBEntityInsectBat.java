@@ -1,7 +1,7 @@
 package ogresean.bats;
 
 import net.minecraft.entity.Entity;
-import net.minecraft.entity.EntityLiving;
+import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.SharedMonsterAttributes;
 import net.minecraft.entity.monster.EntitySpider;
 import net.minecraft.util.ResourceLocation;
@@ -30,7 +30,7 @@ public class BBEntityInsectBat extends BBEntityBat {
 
 	@Override
 	public ResourceLocation getTexture() {
-		return new ResourceLocation("ogresean", "textures/bat/insectBat.png");
+		return insect;
 	}
 
 	@Override
@@ -55,7 +55,7 @@ public class BBEntityInsectBat extends BBEntityBat {
 	 */
 	@Override
 	protected double getBonusVelocity() {
-		return (rand.nextInt(3 + worldObj.difficultySetting * 2) + 4 + worldObj.difficultySetting);
+		return (rand.nextInt(3 + worldObj.difficultySetting.ordinal() * 2) + 4 + worldObj.difficultySetting.ordinal());
 	}
 
 	/**
@@ -64,7 +64,7 @@ public class BBEntityInsectBat extends BBEntityBat {
 	 */
 	@Override
 	protected double getBonusVelocity2() {
-		return 0.01D + worldObj.difficultySetting * 0.01D;
+		return 0.01D + worldObj.difficultySetting.ordinal() * 0.01D;
 	}
 
 	/**
@@ -103,7 +103,8 @@ public class BBEntityInsectBat extends BBEntityBat {
 		}
 	}
 
-	protected boolean isValidTarget(EntityLiving el) {
+    @Override
+	protected boolean isValidTarget(EntityLivingBase el) {
 		return el instanceof EntitySpider;
 	}
 

@@ -2,15 +2,13 @@ package ogresean.bats;
 
 import java.util.List;
 
-import net.minecraft.entity.Entity;
-import net.minecraft.entity.EntityCreature;
-import net.minecraft.entity.EntityLiving;
-import net.minecraft.entity.SharedMonsterAttributes;
+import net.minecraft.entity.*;
 import net.minecraft.entity.passive.EntityAnimal;
 import net.minecraft.entity.passive.EntityChicken;
 import net.minecraft.entity.passive.EntityPig;
 import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.item.Item;
+import net.minecraft.init.Items;
+import net.minecraft.item.ItemStack;
 import net.minecraft.util.DamageSource;
 import net.minecraft.util.MathHelper;
 import net.minecraft.util.ResourceLocation;
@@ -72,7 +70,7 @@ public class BBEntityBloodEaterBat extends BBEntityBat {
 
 	@Override
 	public ResourceLocation getTexture() {
-		return new ResourceLocation("ogresean", "textures/bat/bloodEaterBat.png");
+		return bloodEater;
 	}
 
 	@Override
@@ -132,7 +130,7 @@ public class BBEntityBloodEaterBat extends BBEntityBat {
 	 */
 	@Override
 	protected double getBonusVelocity() {
-		return (rand.nextInt(2 + worldObj.difficultySetting) + 2 + worldObj.difficultySetting);
+		return (rand.nextInt(2 + worldObj.difficultySetting.ordinal()) + 2 + worldObj.difficultySetting.ordinal());
 	}
 
 	/**
@@ -141,7 +139,7 @@ public class BBEntityBloodEaterBat extends BBEntityBat {
 	 */
 	@Override
 	protected double getBonusVelocity2() {
-		return 0.04D + worldObj.difficultySetting * 0.003D;
+		return 0.04D + worldObj.difficultySetting.ordinal() * 0.003D;
 	}
 
 	/**
@@ -239,11 +237,12 @@ public class BBEntityBloodEaterBat extends BBEntityBat {
 	}
 
 	@Override
-	protected boolean isTamingItemID(int id) {
-		return id == Item.porkRaw.itemID;
+	protected boolean isTamingItemID(ItemStack id) {
+		return id!=null && id.getItem() == Items.porkchop;
 	}
 
-	protected boolean isValidTarget(EntityLiving el) {
+    @Override
+	protected boolean isValidTarget(EntityLivingBase el) {
 		return getBatAction() > 2 ? ((el instanceof BBEntityBat && ((BBEntityBat) el).attackTarget instanceof EntityPlayer) || (el instanceof EntityCreature && ((EntityCreature) el).getEntityToAttack() instanceof EntityPlayer))
 				: (el instanceof EntityAnimal && !(el instanceof EntityChicken));
 	}

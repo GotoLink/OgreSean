@@ -1,11 +1,14 @@
 package ogresean.bats;
 
 import java.util.ArrayList;
-import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 
+import cpw.mods.fml.common.FMLCommonHandler;
+import cpw.mods.fml.common.eventhandler.Event;
+import cpw.mods.fml.common.eventhandler.SubscribeEvent;
+import cpw.mods.fml.common.gameevent.TickEvent;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityLiving;
 import net.minecraft.entity.EnumCreatureType;
@@ -16,23 +19,16 @@ import net.minecraft.util.MovingObjectPosition;
 import net.minecraft.util.Vec3;
 import net.minecraft.world.World;
 import net.minecraft.world.biome.BiomeGenBase;
-import net.minecraft.world.biome.SpawnListEntry;
 import net.minecraftforge.common.BiomeDictionary;
-import net.minecraftforge.common.Configuration;
+import net.minecraftforge.common.config.Configuration;
 import net.minecraftforge.common.MinecraftForge;
 import cpw.mods.fml.client.registry.RenderingRegistry;
-import cpw.mods.fml.common.ITickHandler;
-import cpw.mods.fml.common.TickType;
 import cpw.mods.fml.common.registry.EntityRegistry;
-import cpw.mods.fml.common.registry.TickRegistry;
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
-import net.minecraftforge.event.Event;
-import net.minecraftforge.event.ForgeSubscribe;
 import net.minecraftforge.event.entity.living.LivingSpawnEvent;
-import net.minecraftforge.event.world.WorldEvent;
 
-public class Bats implements ITickHandler {
+public class Bats{
 	//configuration variables
 	public static int dayBatSpawnRate = 75, nightBatSpawnRate = 10; //implemented
     public static final Class<?extends EntityLiving>[] bats = new Class[]{BBEntityInsectBat.class, BBEntityNectarBat.class, BBEntityFruitBat.class, BBEntityMeatEaterBat.class, BBEntityBloodEaterBat.class};
@@ -43,26 +39,20 @@ public class Bats implements ITickHandler {
 	public static int batCount = 0; //used for bat spawning
 	public static HashMap<String, ArrayList<BBEntityBat>> assistants = new HashMap<String, ArrayList<BBEntityBat>>();
 
-	@Override
-	public String getLabel() {
-		return "Bats Tick";
-	}
-
 	public void load(boolean client, Object mod) {
         for(int i=0; i<batsName.length; i++){
             EntityRegistry.registerModEntity(bats[i], batsName[i]+"Bat", i, mod, 80, 3, false);
             if(i!=2&&i!=4){
-                addSpawn(bats[i], batSpawnList.get(i), BiomeGenBase.biomeList);
+                addSpawn(bats[i], batSpawnList.get(i), BiomeGenBase.func_150565_n());
             }
         }
         addSpawn(bats[2], batSpawnList.get(2), BiomeDictionary.getBiomesForType(BiomeDictionary.Type.FOREST));
         addSpawn(bats[4], batSpawnList.get(4), BiomeDictionary.getBiomesForType(BiomeDictionary.Type.JUNGLE));
         removeSpawn(bats[1], BiomeDictionary.getBiomesForType(BiomeDictionary.Type.DESERT));
         removeSpawn(bats[1], BiomeDictionary.getBiomesForType(BiomeDictionary.Type.FROZEN));
-		TickRegistry.registerTickHandler(this, Side.SERVER);
+		FMLCommonHandler.instance().bus().register(this);
         MinecraftForge.EVENT_BUS.register(this);
 		if (client) {
-			MinecraftForge.EVENT_BUS.register(new SoundHandler());
 			addRenderers();
 		}
 	}
@@ -70,8 +60,8 @@ public class Bats implements ITickHandler {
     public static void addSpawn(Class <? extends EntityLiving> entityClass, int weightedProb, BiomeGenBase... biomes){
         for (BiomeGenBase biome : biomes){
             if(biome!=null){
-                List<SpawnListEntry> spawns = biome.getSpawnableList(EnumCreatureType.creature);
-                spawns.add(new SpawnListEntry(entityClass, weightedProb, 1, 1));
+                List<BiomeGenBase.SpawnListEntry> spawns = biome.getSpawnableList(EnumCreatureType.creature);
+                spawns.add(new BiomeGenBase.SpawnListEntry(entityClass, weightedProb, 1, 1));
             }
         }
     }
@@ -79,8 +69,8 @@ public class Bats implements ITickHandler {
     public static void removeSpawn(Class <? extends EntityLiving> entityClass, BiomeGenBase... biomes){
         for (BiomeGenBase biome : biomes){
             if(biome!=null){
-                List<SpawnListEntry> spawns = biome.getSpawnableList(EnumCreatureType.creature);
-                for (SpawnListEntry entry : spawns){
+                List<BiomeGenBase.SpawnListEntry> spawns = biome.getSpawnableList(EnumCreatureType.creature);
+                for (BiomeGenBase.SpawnListEntry entry : spawns){
                     if (entry.entityClass == entityClass){
                         spawns.remove(entry);
                         break;
@@ -90,18 +80,11 @@ public class Bats implements ITickHandler {
         }
     }
 
-	@Override
-	public void tickEnd(EnumSet<TickType> type, Object... tickData) {
-		onTickInGame((World) tickData[0]);
-	}
-
-	@Override
-	public EnumSet<TickType> ticks() {
-		return EnumSet.of(TickType.WORLD);
-	}
-
-	@Override
-	public void tickStart(EnumSet<TickType> type, Object... tickData) {
+	@SubscribeEvent
+	public void tickEnd(TickEvent.WorldTickEvent event) {
+        if(event.side.isServer() && event.phase == TickEvent.Phase.END){
+		    onTickInGame(event.world);
+        }
 	}
 
 	//returns base bat spawn rate depending on whether it is day or night in world
@@ -147,7 +130,7 @@ public class Bats implements ITickHandler {
 		return batSpawnNum > 0;
 	}
 
-    @ForgeSubscribe
+    @SubscribeEvent
     public void onTrySpawn(LivingSpawnEvent.CheckSpawn event){
         if(event.entityLiving instanceof BBEntityBat){
             if(getBatSpawnRate(event.world) <= 0 || event.world.getWorldTime() % MathHelper.floor_double(4D * (100D / getBatSpawnRate(event.world))) != 0||!validSpawnArea((BBEntityBat)event.entityLiving, (int)event.x, (int)event.y, (int)event.z)){
@@ -157,7 +140,7 @@ public class Bats implements ITickHandler {
     }
 
 	protected static boolean validSpawnArea(BBEntityBat bat, int x, int y, int z) {
-		if (!bat.worldObj.isAirBlock(x, y, z)) {
+		if (!bat.worldObj.func_147437_c(x, y, z)) {
 			return false;
 		}
 		BiomeGenBase mobspawnerbase = bat.worldObj.getWorldChunkManager().getBiomeGenAt(x, z);
@@ -192,9 +175,7 @@ public class Bats implements ITickHandler {
 				//checks to see if player's cursor is over an entity or a block
 				Vec3 vec3 = world.getWorldVec3Pool().getVecFromPool(ep.posX, ep.posY, ep.posZ);
 				Vec3 vec31 = world.getWorldVec3Pool().getVecFromPool(ep.posX + ep.motionX, ep.posY + ep.motionY, ep.posZ + ep.motionZ);
-				MovingObjectPosition movingobjectposition = world.rayTraceBlocks_do_do(vec3, vec31, true, true);
-				vec3 = world.getWorldVec3Pool().getVecFromPool(ep.posX, ep.posY, ep.posZ);
-				vec31 = world.getWorldVec3Pool().getVecFromPool(ep.posX + ep.motionX, ep.posY + ep.motionY, ep.posZ + ep.motionZ);
+				MovingObjectPosition movingobjectposition = world.func_147447_a(vec3, vec31, true, true, false);
 				if (movingobjectposition != null) {
 					vec31 = world.getWorldVec3Pool().getVecFromPool(movingobjectposition.hitVec.xCoord, movingobjectposition.hitVec.yCoord, movingobjectposition.hitVec.zCoord);
 				}

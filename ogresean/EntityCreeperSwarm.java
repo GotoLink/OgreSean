@@ -7,6 +7,7 @@ import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityCreature;
 import net.minecraft.entity.SharedMonsterAttributes;
 import net.minecraft.entity.monster.EntityCreeper;
+import net.minecraft.init.Blocks;
 import net.minecraft.pathfinding.PathEntity;
 import net.minecraft.pathfinding.PathPoint;
 import net.minecraft.util.DamageSource;
@@ -32,9 +33,9 @@ public class EntityCreeperSwarm extends EntityCreeper {
 	//Creeper swarms move faster, have more hp, and explode quicker on harder difficulties
 	public EntityCreeperSwarm(World world) {
 		super(world);
-		if (world.difficultySetting <= 1) {
+		if (world.difficultySetting.ordinal() <= 1) {
 			explodeBoost = 13; //ignites 2 counts sooner
-		} else if (world.difficultySetting == 2) {
+		} else if (world.difficultySetting.ordinal() == 2) {
 			setHealth(25);
 			explodeBoost = 7; //ignites 4 counts sooner
 		} else {
@@ -119,12 +120,12 @@ public class EntityCreeperSwarm extends EntityCreeper {
 
 	@Override
 	public boolean getCanSpawnHere() {
-		if (super.getCanSpawnHere() == true && worldObj.difficultySetting != 0) {
+		if (super.getCanSpawnHere() == true && worldObj.difficultySetting.ordinal() != 0) {
 			//number to spawn in swarm
 			int swarmNumber;
-			if (worldObj.difficultySetting <= 1) //easy = up to 5 additional creepers
+			if (worldObj.difficultySetting.ordinal() <= 1) //easy = up to 5 additional creepers
 				swarmNumber = CreeperSwarm.easyMax - 1;
-			else if (worldObj.difficultySetting == 2) //normal = up to 7 additional creepers
+			else if (worldObj.difficultySetting.ordinal() == 2) //normal = up to 7 additional creepers
 				swarmNumber = CreeperSwarm.normalMax - 1;
 			else
 				//hard = up to 9 additional creepers
@@ -221,7 +222,7 @@ public class EntityCreeperSwarm extends EntityCreeper {
 		else if (leader.currentAction == 2 && leader.leader != null)
 			leader = leader.leader;
 		//occasionally check for nearby doors & glass
-		if (worldObj.difficultySetting == 3 && rand.nextFloat() < 0.01 && findBlockTarget())
+		if (worldObj.difficultySetting.ordinal() == 3 && rand.nextFloat() < 0.01 && findBlockTarget())
 			return;
 		///if leader has lit fuse, sync up fuse with that leader
 		////increase fuse if leader's is higher
@@ -269,7 +270,7 @@ public class EntityCreeperSwarm extends EntityCreeper {
 	@Override
 	public void onDeath(DamageSource d) {
 		if (currentAction == 1)
-			dropItem(getDropItemId(), rand.nextInt(4) + 1);
+            func_145779_a(func_146068_u(), rand.nextInt(4) + 1);
 		super.onDeath(d);
 	}
 
@@ -295,9 +296,9 @@ public class EntityCreeperSwarm extends EntityCreeper {
 		super.applyEntityAttributes();
 		if (!CreeperSwarm.enableCustomSpeed) {
 			moveSpeed = 0.7F;
-		} else if (worldObj.difficultySetting <= 1) {
+		} else if (worldObj.difficultySetting.ordinal() <= 1) {
 			moveSpeed = 0.85F;
-		} else if (worldObj.difficultySetting == 2) {
+		} else if (worldObj.difficultySetting.ordinal() == 2) {
 			moveSpeed = 1.0F;
 		} else {
 			moveSpeed = 1.25F;
@@ -330,12 +331,12 @@ public class EntityCreeperSwarm extends EntityCreeper {
 		int i = MathHelper.floor_double(posX) + rand.nextInt(13) - 6;
 		int j = MathHelper.floor_double(posY) + rand.nextInt(7) - 3;
 		int k = MathHelper.floor_double(posZ) + rand.nextInt(13) - 6;
-		int bid;
+		Block bid;
 		for (int i0 = i - 2; i0 < i + 2; i0++)
 			for (int j0 = j - 2; j0 < j + 2; j0++)
 				for (int k0 = k - 2; k0 < k + 2; k0++) {
-					bid = worldObj.getBlockId(i0, j0, k0);
-					if (bid == Block.doorWood.blockID || bid == Block.doorIron.blockID || bid == Block.glass.blockID || bid == Block.thinGlass.blockID) {
+					bid = worldObj.func_147439_a(i0, j0, k0);
+					if (bid == Blocks.wooden_door || bid == Blocks.iron_door || bid == Blocks.glass || bid == Blocks.glass_pane) {
 						currentAction = 4;
 						xT = i0;
 						yT = j0;

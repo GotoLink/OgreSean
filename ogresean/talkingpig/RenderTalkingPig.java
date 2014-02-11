@@ -16,12 +16,12 @@ public class RenderTalkingPig extends RenderPig {
 
 	@Override
 	public void doRender(Entity entity, double d, double d1, double d2, float f, float f1) {
-		doRenderLiving((EntityLiving) entity, d, d1, d2, f, f1);
+        func_110827_b((EntityLiving) entity, d, d1, d2, f, f1);
 	}
 
 	@Override
-	public void doRenderLiving(EntityLiving entityliving, double d, double d1, double d2, float f, float f1) {
-		super.doRenderLiving(entityliving, d, d1, d2, f, f1);
+    protected void func_110827_b(EntityLiving entityliving, double d, double d1, double d2, float f, float f1) {
+		super.func_110827_b(entityliving, d, d1, d2, f, f1);
 		doRenderPigName((EntityTalkingPig) entityliving, d, d1, d2, f, f1);
 	}
 
@@ -37,7 +37,7 @@ public class RenderTalkingPig extends RenderPig {
 			GL11.glRotatef(-renderManager.playerViewY, 0.0F, 1.0F, 0.0F);
 			GL11.glRotatef(renderManager.playerViewX, 1.0F, 0.0F, 0.0F);
 			GL11.glScalef(-f3, -f3, f3);
-			String s = talkpig.getEntityName();
+			String s = talkpig.getCustomNameTag();
 			String s1 = talkpig.getLevelMessage();
 			GL11.glDisable(2896 /* GL_LIGHTING */);
 			GL11.glDepthMask(false);

@@ -11,7 +11,8 @@ import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.SharedMonsterAttributes;
 import net.minecraft.entity.item.EntityItem;
 import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.item.Item;
+import net.minecraft.init.Blocks;
+import net.minecraft.init.Items;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.AxisAlignedBB;
@@ -21,7 +22,13 @@ import net.minecraft.util.ResourceLocation;
 import net.minecraft.world.World;
 import net.minecraft.world.biome.BiomeGenBase;
 
-public class BBEntityBat extends EntityLiving {
+public abstract class BBEntityBat extends EntityLiving {
+    public static final ResourceLocation bloodEater = new ResourceLocation("ogresean", "textures/bat/bloodEaterBat.png");
+    public static final ResourceLocation insect = new ResourceLocation("ogresean", "textures/bat/insectBat.png");
+    public static final ResourceLocation fruit = new ResourceLocation("ogresean", "textures/bat/fruitBat.png");
+    public static final ResourceLocation meatEater = new ResourceLocation("ogresean", "textures/bat/meatEaterBat.png");
+    public static final ResourceLocation nectar = new ResourceLocation("ogresean", "textures/bat/nectarBat.png");
+    public static final ResourceLocation cave = new ResourceLocation("ogresean", "textures/bat/caveBat.png");
 	public float wingb;
 	public float wingc;
 	public float wingd;
@@ -197,7 +204,7 @@ public class BBEntityBat extends EntityLiving {
 	}
 
 	public ResourceLocation getTexture() {
-		return new ResourceLocation("ogresean", "textures/bat/caveBat.png");
+		return cave;
 	}
 
 	public void handleAttacking() {
@@ -241,7 +248,7 @@ public class BBEntityBat extends EntityLiving {
 			return true;
 		} else if (entityplayer.getCurrentEquippedItem() != null) {
 			ItemStack item = entityplayer.getCurrentEquippedItem();
-			if (item.itemID == Item.feather.itemID && getBatAction() == 4) {
+			if (item != null && item.getItem()==Items.feather && getBatAction() == 4) {
 				setBatAction((byte)5);
 				wayPoints = null;
 			}
@@ -408,7 +415,7 @@ public class BBEntityBat extends EntityLiving {
 		if (getDistanceSqToEntity(attackTarget) < getAttackDistance()) {
 			if (attackTarget instanceof EntityItem) {
 				EntityItem item = (EntityItem) attackTarget;
-				if (isTamingItemID(item.getEntityItem().itemID)) {
+				if (isTamingItemID(item.getEntityItem())) {
 					devourTamingItem();
 					item.setDead();
 					attackTarget = null;
@@ -449,10 +456,10 @@ public class BBEntityBat extends EntityLiving {
 		int i = MathHelper.floor_double(posX);
 		int j = MathHelper.floor_double(boundingBox.minY);
 		int k = MathHelper.floor_double(posZ);
-		int bid = worldObj.getBlockId(i, j, k);
+		Block bid = worldObj.func_147439_a(i, j, k);
 		if (isLooseBlock(bid)) {
-			Block.blocksList[bid].dropBlockAsItem(worldObj, i, j, k, worldObj.getBlockMetadata(bid, j, k), 0);
-			worldObj.setBlockToAir(i, j, k);
+			bid.func_149697_b(worldObj, i, j, k, worldObj.getBlockMetadata(i, j, k), 0);
+			worldObj.func_147468_f(i, j, k);
 			this.attackEntityFrom(DamageSource.inWall, 1);
 		}
 	}
@@ -467,7 +474,7 @@ public class BBEntityBat extends EntityLiving {
 				continue;
 			}
 			double d2 = entity1.getDistanceSq(posX, posY, posZ);
-			if ((d2 < d1) && canEntityBeSeen(entity1) && isTamingItemID(((EntityItem) entity1).getEntityItem().itemID)) {
+			if ((d2 < d1) && canEntityBeSeen(entity1) && isTamingItemID(((EntityItem) entity1).getEntityItem())) {
 				d1 = d2;
 				entityitem = (EntityItem) entity1;
 			}
@@ -513,7 +520,7 @@ public class BBEntityBat extends EntityLiving {
 	protected void dropFewItems(boolean par1, int par2) {
 		int j = rand.nextInt(32) - 29;
 		for (int k = 0; k < j; k++) {
-			this.entityDropItem(new ItemStack(Item.dyePowder, 1, 15), -0.05F);
+			this.entityDropItem(new ItemStack(Items.dye, 1, 15), -0.05F);
 		}
 	}
 
@@ -541,7 +548,7 @@ public class BBEntityBat extends EntityLiving {
 		int j = MathHelper.floor_double(boundingBox.minY);
 		int k = MathHelper.floor_double(posZ);
 		for (int w = 0; w < 10; w++) {
-			if (isCeilingBlock(worldObj.getBlockId(i, j + w, k)) && !isInvalidTravelBlock(i, j + w - 1, k) && worldObj.getBlockLightValue(i, j + w - 1, k) <= maxCeilingLight()) {
+			if (isCeilingBlock(worldObj.func_147439_a(i, j + w, k)) && !isInvalidTravelBlock(i, j + w - 1, k) && worldObj.getBlockLightValue(i, j + w - 1, k) <= maxCeilingLight()) {
 				setPosition(i + 0.5D, j + w - getScale(), k + 0.5D);
 				if (!worldObj.checkNoEntityCollision(boundingBox)) {
 					setPosition(posX, posY - w + getScale(), posZ);
@@ -578,7 +585,7 @@ public class BBEntityBat extends EntityLiving {
 	}
 
 	protected byte getAttackDelay() {
-		return getBatAction() > 2 ? 50 : (byte) (120 - worldObj.difficultySetting * 20);
+		return getBatAction() > 2 ? 50 : (byte) (120 - worldObj.difficultySetting.ordinal() * 20);
 	}
 
 	protected float getAttackDistance() {
@@ -590,7 +597,7 @@ public class BBEntityBat extends EntityLiving {
 	}
 
 	protected int getBatDamage() {
-		return getBatAction() < 3 ? worldObj.difficultySetting : 2;
+		return getBatAction() < 3 ? worldObj.difficultySetting.ordinal() : 2;
 	}
 
 	/**
@@ -598,7 +605,7 @@ public class BBEntityBat extends EntityLiving {
 	 *         collide with the bat.
 	 */
 	protected double getBonusVelocity() {
-		return (rand.nextInt(8 + worldObj.difficultySetting * 3) + 8 + worldObj.difficultySetting);
+		return (rand.nextInt(8 + worldObj.difficultySetting.ordinal() * 3) + 8 + worldObj.difficultySetting.ordinal());
 	}
 
 	/**
@@ -606,7 +613,7 @@ public class BBEntityBat extends EntityLiving {
 	 *         with the bat.
 	 */
 	protected double getBonusVelocity2() {
-		return 0.016D + worldObj.difficultySetting * 0.04D;
+		return 0.016D + worldObj.difficultySetting.ordinal() * 0.04D;
 	}
 
 	/**
@@ -619,7 +626,7 @@ public class BBEntityBat extends EntityLiving {
 
 	@Override
 	protected String getDeathSound() {
-		return "ogresean:bat.batDeath";
+		return "ogresean:bat.death";
 	}
 
 	/**
@@ -634,7 +641,7 @@ public class BBEntityBat extends EntityLiving {
 	 * @return the string representing the echo sound, used for active bats.
 	 */
 	protected String getEchoSound() {
-		return "ogresean:bat.batEcho";
+		return "ogresean:bat.echo";
 	}
 
 	//path weight for flight
@@ -647,7 +654,7 @@ public class BBEntityBat extends EntityLiving {
 			EntityPlayer player = worldObj.getClosestPlayerToEntity(this, 20);
 			if (player != null) {
 				double dist = getDistanceToEntity(player);
-				boolean flag = player.getCurrentEquippedItem() != null && player.getCurrentEquippedItem().itemID == Item.feather.itemID; //bats fly closer when holding feather
+				boolean flag = player.getCurrentEquippedItem() != null && player.getCurrentEquippedItem().getItem() == Items.feather; //bats fly closer when holding feather
 				if (!flag && dist > 12D || flag && dist > 3.0D)
 					return (float) (!isInvalidTravelBlock(i, j, k) ? -player.getDistance(i, j, k) : -100F);
 			} else {
@@ -655,11 +662,11 @@ public class BBEntityBat extends EntityLiving {
 			}
 		}
 		//if looking for spot to roost
-		else if (getBatAction() == 5 && isCeilingBlock(worldObj.getBlockId(i, j + 1, k)) && !isInvalidTravelBlock(i, j, k) && worldObj.getBlockLightValue(i, j, k) <= maxCeilingLight())
+		else if (getBatAction() == 5 && isCeilingBlock(worldObj.func_147439_a(i, j + 1, k)) && !isInvalidTravelBlock(i, j, k) && worldObj.getBlockLightValue(i, j, k) <= maxCeilingLight())
 			return 200F;
 		//wild bats have chance of aiming for loose blocks
-		else if (getBatAction() < 3 && isLooseBlock(worldObj.getBlockId(i, j, k))) //wild bats have chance of aiming for loose blocks
-			return -4F + worldObj.difficultySetting * 3F;
+		else if (getBatAction() < 3 && isLooseBlock(worldObj.func_147439_a(i, j, k))) //wild bats have chance of aiming for loose blocks
+			return -4F + worldObj.difficultySetting.ordinal() * 3F;
 		else if (isInvalidTravelBlock(i, j, k)) //other non-air blocks ignored
 			return -100F;
 		else if (isFavoredTravelBlock(i, j, k))
@@ -690,12 +697,12 @@ public class BBEntityBat extends EntityLiving {
 
 	@Override
 	protected String getHurtSound() {
-		return "ogresean:bat.batHurt";
+		return "ogresean:bat.hurt";
 	}
 
 	@Override
 	protected String getLivingSound() {
-		return "ogresean:bat.batLiving";
+		return "ogresean:bat.living";
 	}
 
 	protected float getPlayerProximityWakeChance(float dist) {
@@ -767,7 +774,7 @@ public class BBEntityBat extends EntityLiving {
 	protected void handleManure() {
 		batTimer++;
 		if (batTimer == getDropFreq()) {
-			this.entityDropItem(new ItemStack(Item.dyePowder, 1, 15), -0.05F);
+			this.entityDropItem(new ItemStack(Items.dye, 1, 15), -0.05F);
 			batTimer = 0;
 		}
 	}
@@ -780,7 +787,7 @@ public class BBEntityBat extends EntityLiving {
 		int i = MathHelper.floor_double(posX);
 		int j = MathHelper.floor_double(boundingBox.minY);
 		int k = MathHelper.floor_double(posZ);
-		if ((getBatAction() == 0 || getBatAction() == 3) && !isCeilingBlock(worldObj.getBlockId(i, j + 1, k)))
+		if ((getBatAction() == 0 || getBatAction() == 3) && !isCeilingBlock(worldObj.func_147439_a(i, j + 1, k)))
 			wakeUp();
 	}
 
@@ -800,10 +807,10 @@ public class BBEntityBat extends EntityLiving {
 		for (double d = ab.minX; d <= ab.maxX; d = ab.maxX - d < 1 && ab.maxX != d ? ab.maxX : d + 1.0D)
 			for (double d1 = ab.minY; d1 <= ab.maxY; d1 = ab.maxY - d1 < 1 && ab.maxY != d1 ? ab.maxY : d1 + 1.0D)
 				for (double d2 = ab.minZ; d2 <= ab.maxZ; d2 = ab.maxZ - d2 < 1 && ab.maxZ != d2 ? ab.maxZ : d2 + 1.0D) {
-					int bid = worldObj.getBlockId(MathHelper.floor_double(d), MathHelper.floor_double(d1), MathHelper.floor_double(d2));
-					if (bid == Block.leaves.blockID)
+					Block bid = worldObj.func_147439_a(MathHelper.floor_double(d), MathHelper.floor_double(d1), MathHelper.floor_double(d2));
+					if (bid == Blocks.leaves)
 						leafBlock = true;
-					else if (bid > 0 && Block.blocksList[bid].getCollisionBoundingBoxFromPool(worldObj, MathHelper.floor_double(d), MathHelper.floor_double(d1), MathHelper.floor_double(d2)) != null)
+					else if (bid.func_149668_a(worldObj, MathHelper.floor_double(d), MathHelper.floor_double(d1), MathHelper.floor_double(d2)) != null)
 						solidBlock = true;
 				}
 		//set or unset noclip based on what bat will collide into
@@ -812,9 +819,9 @@ public class BBEntityBat extends EntityLiving {
 		else if (noClip) {
 			if (solidBlock)
 				reverse = true;
-			else if (!leafBlock && !solidBlock && tempClip < 0)
+			else if (!leafBlock && tempClip < 0)
 				tempClip = 3;
-			else if (leafBlock && !solidBlock && tempClip > -1)
+			else if (leafBlock && tempClip > -1)
 				tempClip = -1;
 		}
 		//if going to collide into solid block while in leaves reverse motion
@@ -828,7 +835,7 @@ public class BBEntityBat extends EntityLiving {
 		int i = MathHelper.floor_double(posX);
 		int j = MathHelper.floor_double(boundingBox.minY);
 		int k = MathHelper.floor_double(posZ);
-		if (isCeilingBlock(worldObj.getBlockId(i, j + 1, k)) && !isInvalidTravelBlock(i, j, k) && worldObj.getBlockLightValue(i, j, k) <= maxCeilingLight()) {
+		if (isCeilingBlock(worldObj.func_147439_a(i, j + 1, k)) && !isInvalidTravelBlock(i, j, k) && worldObj.getBlockLightValue(i, j, k) <= maxCeilingLight()) {
 			setPosition(i + 0.5D, j + 1 - getScale(), k + 0.5D);
 			boolean flag = true;
 			List<?> list = worldObj.getEntitiesWithinAABBExcludingEntity(this, boundingBox);
@@ -879,7 +886,7 @@ public class BBEntityBat extends EntityLiving {
 			int k = MathHelper.floor_double(ep.boundingBox.minY) + rand.nextInt(3);
 			for (int l = 0; l <= 4; l++) {
 				for (int i1 = 0; i1 <= 4; i1++) {
-					if ((l < 1 || i1 < 1 || l > 3 || i1 > 3) && worldObj.isAirBlock(i + l, k, j + i1)) {
+					if ((l < 1 || i1 < 1 || l > 3 || i1 > 3) && worldObj.func_147437_c(i + l, k, j + i1)) {
 						setLocationAndAngles(i + l + 0.5F, k, j + i1 + 0.5F, rotationYaw, rotationPitch);
 						return;
 					}
@@ -928,8 +935,8 @@ public class BBEntityBat extends EntityLiving {
 		}
 	}
 
-	protected boolean isCeilingBlock(int bid) {
-		return bid > 0 && Block.blocksList[bid].isOpaqueCube();
+	protected boolean isCeilingBlock(Block bid) {
+		return bid.func_149662_c();
 	}
 
 	protected boolean isFavoredTravelBlock(int i, int j, int k) {
@@ -937,16 +944,16 @@ public class BBEntityBat extends EntityLiving {
 	}
 
 	protected boolean isInvalidTravelBlock(int i, int j, int k) {
-		return !(worldObj.getBlockId(i, j, k) == 0 || worldObj.getBlockId(i, j, k) == Block.leaves.blockID);
+		return !(worldObj.func_147439_a(i, j, k) == Blocks.air || worldObj.func_147439_a(i, j, k) == Blocks.leaves);
 	}
 
-	protected boolean isLooseBlock(int bid) {
-		return bid == Block.torchWood.blockID || bid == Block.crops.blockID || bid == Block.torchRedstoneActive.blockID || bid == Block.torchRedstoneIdle.blockID || bid == Block.sapling.blockID
-				|| bid == Block.reed.blockID || bid == Block.plantRed.blockID || bid == Block.plantYellow.blockID || bid == Block.mushroomBrown.blockID || bid == Block.mushroomRed.blockID;
+	protected boolean isLooseBlock(Block bid) {
+		return bid == Blocks.torch || bid == Blocks.wheat || bid == Blocks.redstone_torch || bid == Blocks.lit_redstone_lamp || bid == Blocks.sapling
+				|| bid == Blocks.reeds || bid == Blocks.red_flower || bid == Blocks.yellow_flower || bid == Blocks.brown_mushroom || bid == Blocks.red_mushroom;
 	}
 
-	protected boolean isTamingItemID(int id) {
-		return id == Item.slimeBall.itemID;
+	protected boolean isTamingItemID(ItemStack stack) {
+		return stack!=null && stack.getItem() == Items.slime_ball;
 	}
 
 	protected boolean isValidTarget(EntityLivingBase el) {
@@ -1082,7 +1089,7 @@ public class BBEntityBat extends EntityLiving {
 		//slow down bat if near player and player holding feather
 		if (getBatAction() > 2) {
 			EntityPlayer player = worldObj.getClosestPlayerToEntity(this, 6);
-			if (player != null && player.getCurrentEquippedItem() != null && player.getCurrentEquippedItem().itemID == Item.feather.itemID) {
+			if (player != null && player.getCurrentEquippedItem() != null && player.getCurrentEquippedItem().getItem() == Items.feather) {
 				yMaxSpeed = 0.3D;
 				xzMaxSpeed = 0.1D;
 			}
@@ -1136,17 +1143,17 @@ public class BBEntityBat extends EntityLiving {
 			}
 		}
 		if (batCount > 4)
-			worldObj.playSoundAtEntity(this, "ogresean:bat.batWakeMany", getSoundVolume() * 1.4F, (rand.nextFloat() - rand.nextFloat()) * 0.2F + 1.0F);
+			worldObj.playSoundAtEntity(this, "ogresean:bat.wakeMany", getSoundVolume() * 1.4F, (rand.nextFloat() - rand.nextFloat()) * 0.2F + 1.0F);
 	}
 
 	protected boolean willAttack() {
-		return getBatAction() > 2 ? rand.nextInt(20) == 0 : (worldObj.difficultySetting * 3 * worldObj.difficultySetting) + rand.nextInt(100) > 99;
+		return getBatAction() > 2 ? rand.nextInt(20) == 0 : (worldObj.difficultySetting.ordinal() * 3 * worldObj.difficultySetting.ordinal()) + rand.nextInt(100) > 99;
 	}
 
 	/**
 	 * @return true if the bat has become aggressive after an attack
 	 */
 	protected boolean willBecomeAggressive(Entity entity) {
-		return worldObj.difficultySetting * 4 + rand.nextInt(16) > 16;
+		return worldObj.difficultySetting.ordinal() * 4 + rand.nextInt(16) > 16;
 	}
 }

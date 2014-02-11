@@ -1,6 +1,7 @@
 package ogresean;
 
-import net.minecraftforge.common.Configuration;
+import cpw.mods.fml.common.FMLCommonHandler;
+import net.minecraftforge.common.config.Configuration;
 import ogresean.bats.Bats;
 import ogresean.talkingpig.TalkingPig;
 import cpw.mods.fml.common.Mod;
@@ -8,12 +9,8 @@ import cpw.mods.fml.common.Mod.EventHandler;
 import cpw.mods.fml.common.Mod.Instance;
 import cpw.mods.fml.common.event.FMLInitializationEvent;
 import cpw.mods.fml.common.event.FMLPreInitializationEvent;
-import cpw.mods.fml.common.network.NetworkMod;
-import cpw.mods.fml.common.registry.TickRegistry;
-import cpw.mods.fml.relauncher.Side;
 
 @Mod(modid = "ogreseanmods", name = "OgreSean Mods", version = "0.2")
-@NetworkMod(clientSideRequired = true)
 public class OgreSeanMods {
 	@Instance("ogreseanmods")
 	public static OgreSeanMods instance;
@@ -42,10 +39,10 @@ public class OgreSeanMods {
 			CreeperSwarm.preLoad(config);
 		}
 		if (config.get("General", "Enable RandomItemSpawn", true).getBoolean(true)) {
-			TickRegistry.registerScheduledTickHandler(new RandomItemSpawn(), Side.SERVER);
+			FMLCommonHandler.instance().bus().register(new RandomItemSpawn());
 		}
 		if (config.get("General", "Enable RainingBombSquid", true).getBoolean(true)) {
-			TickRegistry.registerTickHandler(new RainingBombSquid(), Side.SERVER);
+            FMLCommonHandler.instance().bus().register(new RainingBombSquid());
 		}
 		bats = config.get("General", "Enable Bats", true).getBoolean(true);
 		if (bats) {

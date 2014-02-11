@@ -1,60 +1,42 @@
 package ogresean;
 
 import java.util.ArrayList;
-import java.util.EnumSet;
 import java.util.Iterator;
 import java.util.Random;
 
-import net.minecraft.block.Block;
+import cpw.mods.fml.common.eventhandler.SubscribeEvent;
+import cpw.mods.fml.common.gameevent.TickEvent;
 import net.minecraft.entity.item.EntityItem;
 import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.item.Item;
+import net.minecraft.init.Blocks;
+import net.minecraft.init.Items;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.MathHelper;
-import net.minecraft.world.World;
 import net.minecraft.world.WorldServer;
-import cpw.mods.fml.common.IScheduledTickHandler;
-import cpw.mods.fml.common.TickType;
 
-public class RandomItemSpawn implements IScheduledTickHandler {
+public class RandomItemSpawn {
 	public static ArrayList<EntityItem> items = new ArrayList<EntityItem>();
-	public static final ItemStack itemChoices[] = new ItemStack[] { new ItemStack(Block.dirt.blockID, 3, 0), new ItemStack(Block.blockClay), new ItemStack(Block.cobblestone),
-			new ItemStack(Block.cobblestoneMossy), new ItemStack(Item.dyePowder.itemID, 1, 3), new ItemStack(Block.cobblestoneMossy.blockID, 2, 0), new ItemStack(Block.gravel),
-			new ItemStack(Block.sand.blockID, 2, 0), new ItemStack(Block.pumpkin), new ItemStack(Block.sandStone), new ItemStack(Block.mushroomBrown), new ItemStack(Block.stone),
-			new ItemStack(Item.bone), new ItemStack(Item.stick.itemID, 2, 0), new ItemStack(Item.slimeBall.itemID, 3, 0), new ItemStack(Item.silk), new ItemStack(Item.seeds),
-			new ItemStack(Item.reed), new ItemStack(Item.leather), new ItemStack(Item.clay.itemID, 3, 0), new ItemStack(Item.egg), new ItemStack(Item.feather), new ItemStack(Item.porkRaw),
-			new ItemStack(Item.fishRaw), new ItemStack(Item.appleRed), new ItemStack(Item.appleRed), new ItemStack(Item.flint.itemID, 2, 0), new ItemStack(Item.gunpowder.itemID, 2, 0),
-			new ItemStack(Item.gunpowder), new ItemStack(Item.bone.itemID, 2, 0), new ItemStack(Item.silk.itemID, 2, 0), new ItemStack(Item.slimeBall.itemID, 2, 0),
-			new ItemStack(Item.feather.itemID, 2, 0), new ItemStack(Item.coal.itemID, 1, 1), new ItemStack(Item.seeds.itemID, 3, 0), new ItemStack(Item.stick), new ItemStack(Item.bone.itemID, 2, 0),
-			new ItemStack(Item.stick.itemID, 3, 0), new ItemStack(Item.bone.itemID, 4, 0), new ItemStack(Item.stick.itemID, 4, 0), };
+	public static final ItemStack itemChoices[] = new ItemStack[] { new ItemStack(Blocks.dirt, 3, 0), new ItemStack(Blocks.clay), new ItemStack(Blocks.cobblestone),
+			new ItemStack(Blocks.mossy_cobblestone), new ItemStack(Items.dye, 1, 3), new ItemStack(Blocks.mossy_cobblestone, 2, 0), new ItemStack(Blocks.gravel),
+			new ItemStack(Blocks.sand, 2, 0), new ItemStack(Blocks.pumpkin), new ItemStack(Blocks.sandstone), new ItemStack(Blocks.brown_mushroom), new ItemStack(Blocks.stone),
+			new ItemStack(Items.bone), new ItemStack(Items.stick, 2, 0), new ItemStack(Items.slime_ball, 3, 0), new ItemStack(Items.string), new ItemStack(Items.wheat_seeds),
+			new ItemStack(Items.reeds), new ItemStack(Items.leather), new ItemStack(Items.clay_ball, 3, 0), new ItemStack(Items.egg), new ItemStack(Items.feather), new ItemStack(Items.porkchop),
+			new ItemStack(Items.fish), new ItemStack(Items.apple), new ItemStack(Items.apple), new ItemStack(Items.flint, 2, 0), new ItemStack(Items.gunpowder, 2, 0),
+			new ItemStack(Items.gunpowder), new ItemStack(Items.bone, 2, 0), new ItemStack(Items.string, 2, 0), new ItemStack(Items.slime_ball, 2, 0),
+			new ItemStack(Items.feather, 2, 0), new ItemStack(Items.coal, 1, 1), new ItemStack(Items.wheat_seeds, 3, 0), new ItemStack(Items.stick), new ItemStack(Items.bone, 2, 0),
+			new ItemStack(Items.stick, 3, 0), new ItemStack(Items.bone, 4, 0), new ItemStack(Items.stick, 4, 0), };
 	public static final int MAX_ITEMS = 32, MAX_ENTITIES_PER_CHUNK = 100;
 
-	@Override
-	public String getLabel() {
-		return "RandomItemTick";
-	}
+	@SubscribeEvent
+	public void tickEnd(TickEvent.WorldTickEvent event) {
+        if(event.side.isServer() && event.phase == TickEvent.Phase.END && event.world.getWorldTime() % 4 == 0){
+            //attempt to spawn items
+            performItemSpawning(((WorldServer) event.world));
+            //every 62 ticks refresh item list, and remove dead or null items
+            if (event.world.getWorldTime() % 62 == 0)
+                refreshItemList(event.world.rand);
 
-	@Override
-	public int nextTickSpacing() {
-		return 4;//every 4 ticks
-	}
-
-	@Override
-	public void tickEnd(EnumSet<TickType> type, Object... tickData) {
-		//attempt to spawn items 
-		performItemSpawning(((WorldServer) tickData[0]));
-		//every 62 ticks refresh item list, and remove dead or null items
-		if (((World) tickData[0]).getWorldTime() % 62 == 0)
-			refreshItemList(((World) tickData[0]).rand);
-	}
-
-	@Override
-	public EnumSet<TickType> ticks() {
-		return EnumSet.of(TickType.WORLD);
-	}
-
-	@Override
-	public void tickStart(EnumSet<TickType> type, Object... tickData) {
+        }
 	}
 
 	//spawns items into world
@@ -82,7 +64,7 @@ public class RandomItemSpawn implements IScheduledTickHandler {
 				int x0 = x + world.rand.nextInt(7) - 3;
 				int y0 = y + world.rand.nextInt(7) - 3;
 				int z0 = z + world.rand.nextInt(7) - 3;
-				if (world.getBlockId(x0, y0, z0) != 0)
+				if (world.func_147439_a(x0, y0, z0) != Blocks.air)
 					continue;
 				item = new EntityItem(world, x0, y0, z0, itemChoices[world.rand.nextInt(itemChoices.length)].copy());
 				item.age = 1000 * world.rand.nextInt(6);

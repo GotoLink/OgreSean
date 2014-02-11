@@ -1,0 +1,38 @@
+{
+"bat.death": {
+    "category": "neutral",
+    "sounds": [
+    {"type": "event", "name": "bat/death.wav"}
+    ]
+  },
+"bat.echo": {
+    "category": "neutral",
+    "sounds": [
+    {"type": "event", "name": "bat/echo1.wav"},
+    {"type": "event", "name": "bat/echo2.wav"}
+    ]
+  },
+"bat.hurt": {
+    "category": "neutral",
+    "sounds": [
+    {"type": "event", "name": "bat/hurt.wav"}
+    ]
+  },
+"bat.living": {
+    "category": "neutral",
+    "sounds": [
+    {"type": "event", "name": "bat/living1.wav"},
+    {"type": "event", "name": "bat/living2.wav"},
+    {"type": "event", "name": "bat/living3.wav"},
+    {"type": "event", "name": "bat/living4.wav"},
+    {"type": "event", "name": "bat/living5.wav"},
+    {"type": "event", "name": "bat/living6.wav"}
+    ]
+  },
+"bat.wakeMany": {
+    "category": "neutral",
+    "sounds": [
+    {"type": "event", "name": "bat/wakeMany.wav"}
+    ]
+  }
+}

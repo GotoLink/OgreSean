@@ -62,8 +62,8 @@ public class BBRenderBat extends RenderLiving {
 	}
 
 	@Override
-	public void doRenderLiving(EntityLiving entityliving, double d, double d1, double d2, float f, float f1) {
-		super.doRenderLiving(entityliving, d, d1, d2, f, f1);
+	protected void func_110827_b(EntityLiving entityliving, double d, double d1, double d2, float f, float f1) {
+		super.func_110827_b(entityliving, d, d1, d2, f, f1);
 		if (((BBEntityBat) entityliving).getBatAction() > 2 && entityliving.getDistanceToEntity(renderManager.livingPlayer) < 32F) {
 			float f3 = 0.01666667F * 1.6F;
 			GL11.glPushMatrix();
@@ -81,8 +81,8 @@ public class BBRenderBat extends RenderLiving {
 			byte byte0 = 10;
 			GL11.glDisable(3553 /* GL_TEXTURE_2D */);
 			tessellator.startDrawingQuads();
-			float f5 = ((BBEntityBat) entityliving).getHealth();
-			float f6 = ((BBEntityBat) entityliving).getMaxHealth();
+			float f5 = entityliving.getHealth();
+			float f6 = entityliving.getMaxHealth();
 			float f7 = f5 / f6;
 			float f8 = 50F * f7;
 			tessellator.setColorRGBA_F(1.0F, 0.0F, 0.0F, 1.0F);

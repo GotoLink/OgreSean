@@ -2,12 +2,14 @@ package ogresean;
 
 import net.minecraft.client.renderer.entity.RenderCreeper;
 import net.minecraft.entity.EnumCreatureType;
-import net.minecraft.world.WorldType;
-import net.minecraftforge.common.Configuration;
+import net.minecraft.world.biome.BiomeGenBase;
+import net.minecraftforge.common.config.Configuration;
 import cpw.mods.fml.client.registry.RenderingRegistry;
 import cpw.mods.fml.common.registry.EntityRegistry;
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
+
+import java.util.Iterator;
 
 public class CreeperSwarm {
 	public static boolean enableCustomSpeed = true;
@@ -20,7 +22,7 @@ public class CreeperSwarm {
 
 	public static void load(boolean isClient, Object mod) {
 		EntityRegistry.registerModEntity(EntityCreeperSwarm.class, "CreeperSwarm", 0, mod, 80, 3, true);
-		EntityRegistry.addSpawn(EntityCreeperSwarm.class, 5, 1, 1, EnumCreatureType.monster, WorldType.base11Biomes);
+		EntityRegistry.addSpawn(EntityCreeperSwarm.class, 5, 1, 1, EnumCreatureType.monster, getSpawn());
 		if (isClient) {
 			addRenderer();
 		}
@@ -39,4 +41,13 @@ public class CreeperSwarm {
 	private static void addRenderer() {
 		RenderingRegistry.registerEntityRenderingHandler(EntityCreeperSwarm.class, new RenderCreeper());
 	}
+
+    private static BiomeGenBase[] getSpawn(){
+        BiomeGenBase[] result = new BiomeGenBase[BiomeGenBase.field_150597_n.size()];
+        int i = 0;
+        for(Iterator<BiomeGenBase> itr = BiomeGenBase.field_150597_n.iterator(); itr.hasNext(); ++i){
+            result[i] = itr.next();
+        }
+        return result;
+    }
 }
