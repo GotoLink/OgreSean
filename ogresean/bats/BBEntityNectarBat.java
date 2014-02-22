@@ -88,7 +88,7 @@ public class BBEntityNectarBat extends BBEntityBat {
 	@Override
 	protected void applyEntityAttributes() {
 		super.applyEntityAttributes();
-		this.getEntityAttribute(SharedMonsterAttributes.maxHealth).setAttribute(4D);
+		this.getEntityAttribute(SharedMonsterAttributes.maxHealth).setBaseValue(4D);
 	}
 
 	@Override
@@ -208,12 +208,12 @@ public class BBEntityNectarBat extends BBEntityBat {
 
 	@Override
 	protected boolean isFavoredTravelBlock(int i, int j, int k) {
-		return flowerTimer < 0 ? false : worldObj.func_147439_a(i, j, k) == Blocks.red_flower || worldObj.func_147439_a(i, j, k) == Blocks.yellow_flower;
+		return flowerTimer < 0 ? false : worldObj.getBlock(i, j, k) == Blocks.red_flower || worldObj.getBlock(i, j, k) == Blocks.yellow_flower;
 	}
 
 	@Override
 	protected boolean isInvalidTravelBlock(int i, int j, int k) {
-		return worldObj.func_147439_a(i, j, k) != Blocks.air && !isFavoredTravelBlock(i, j, k);
+		return worldObj.getBlock(i, j, k) != Blocks.air && !isFavoredTravelBlock(i, j, k);
 	}
 
 	@Override
@@ -224,7 +224,7 @@ public class BBEntityNectarBat extends BBEntityBat {
 
 	@Override
 	protected boolean isTamingItemID(ItemStack id) {
-		return id !=null &&(id.getItem() == Item.func_150898_a(Blocks.yellow_flower) || id.getItem() == Item.func_150898_a(Blocks.red_flower));
+		return id !=null &&(id.getItem() == Item.getItemFromBlock(Blocks.yellow_flower) || id.getItem() == Item.getItemFromBlock(Blocks.red_flower));
 	}
 
     @Override

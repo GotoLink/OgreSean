@@ -408,7 +408,7 @@ public abstract class BBEntityBat extends EntityLiving {
 	@Override
 	protected void applyEntityAttributes() {
 		super.applyEntityAttributes();
-		this.getEntityAttribute(SharedMonsterAttributes.maxHealth).setAttribute(5D);
+		this.getEntityAttribute(SharedMonsterAttributes.maxHealth).setBaseValue(5D);
 	}
 
 	protected boolean attackEnemy() {
@@ -456,10 +456,10 @@ public abstract class BBEntityBat extends EntityLiving {
 		int i = MathHelper.floor_double(posX);
 		int j = MathHelper.floor_double(boundingBox.minY);
 		int k = MathHelper.floor_double(posZ);
-		Block bid = worldObj.func_147439_a(i, j, k);
+		Block bid = worldObj.getBlock(i, j, k);
 		if (isLooseBlock(bid)) {
-			bid.func_149697_b(worldObj, i, j, k, worldObj.getBlockMetadata(i, j, k), 0);
-			worldObj.func_147468_f(i, j, k);
+			bid.dropBlockAsItem(worldObj, i, j, k, worldObj.getBlockMetadata(i, j, k), 0);
+			worldObj.setBlockToAir(i, j, k);
 			this.attackEntityFrom(DamageSource.inWall, 1);
 		}
 	}
@@ -548,7 +548,7 @@ public abstract class BBEntityBat extends EntityLiving {
 		int j = MathHelper.floor_double(boundingBox.minY);
 		int k = MathHelper.floor_double(posZ);
 		for (int w = 0; w < 10; w++) {
-			if (isCeilingBlock(worldObj.func_147439_a(i, j + w, k)) && !isInvalidTravelBlock(i, j + w - 1, k) && worldObj.getBlockLightValue(i, j + w - 1, k) <= maxCeilingLight()) {
+			if (isCeilingBlock(worldObj.getBlock(i, j + w, k)) && !isInvalidTravelBlock(i, j + w - 1, k) && worldObj.getBlockLightValue(i, j + w - 1, k) <= maxCeilingLight()) {
 				setPosition(i + 0.5D, j + w - getScale(), k + 0.5D);
 				if (!worldObj.checkNoEntityCollision(boundingBox)) {
 					setPosition(posX, posY - w + getScale(), posZ);
@@ -662,10 +662,10 @@ public abstract class BBEntityBat extends EntityLiving {
 			}
 		}
 		//if looking for spot to roost
-		else if (getBatAction() == 5 && isCeilingBlock(worldObj.func_147439_a(i, j + 1, k)) && !isInvalidTravelBlock(i, j, k) && worldObj.getBlockLightValue(i, j, k) <= maxCeilingLight())
+		else if (getBatAction() == 5 && isCeilingBlock(worldObj.getBlock(i, j + 1, k)) && !isInvalidTravelBlock(i, j, k) && worldObj.getBlockLightValue(i, j, k) <= maxCeilingLight())
 			return 200F;
 		//wild bats have chance of aiming for loose blocks
-		else if (getBatAction() < 3 && isLooseBlock(worldObj.func_147439_a(i, j, k))) //wild bats have chance of aiming for loose blocks
+		else if (getBatAction() < 3 && isLooseBlock(worldObj.getBlock(i, j, k))) //wild bats have chance of aiming for loose blocks
 			return -4F + worldObj.difficultySetting.ordinal() * 3F;
 		else if (isInvalidTravelBlock(i, j, k)) //other non-air blocks ignored
 			return -100F;
@@ -787,7 +787,7 @@ public abstract class BBEntityBat extends EntityLiving {
 		int i = MathHelper.floor_double(posX);
 		int j = MathHelper.floor_double(boundingBox.minY);
 		int k = MathHelper.floor_double(posZ);
-		if ((getBatAction() == 0 || getBatAction() == 3) && !isCeilingBlock(worldObj.func_147439_a(i, j + 1, k)))
+		if ((getBatAction() == 0 || getBatAction() == 3) && !isCeilingBlock(worldObj.getBlock(i, j + 1, k)))
 			wakeUp();
 	}
 
@@ -807,10 +807,10 @@ public abstract class BBEntityBat extends EntityLiving {
 		for (double d = ab.minX; d <= ab.maxX; d = ab.maxX - d < 1 && ab.maxX != d ? ab.maxX : d + 1.0D)
 			for (double d1 = ab.minY; d1 <= ab.maxY; d1 = ab.maxY - d1 < 1 && ab.maxY != d1 ? ab.maxY : d1 + 1.0D)
 				for (double d2 = ab.minZ; d2 <= ab.maxZ; d2 = ab.maxZ - d2 < 1 && ab.maxZ != d2 ? ab.maxZ : d2 + 1.0D) {
-					Block bid = worldObj.func_147439_a(MathHelper.floor_double(d), MathHelper.floor_double(d1), MathHelper.floor_double(d2));
+					Block bid = worldObj.getBlock(MathHelper.floor_double(d), MathHelper.floor_double(d1), MathHelper.floor_double(d2));
 					if (bid == Blocks.leaves)
 						leafBlock = true;
-					else if (bid.func_149668_a(worldObj, MathHelper.floor_double(d), MathHelper.floor_double(d1), MathHelper.floor_double(d2)) != null)
+					else if (bid.getCollisionBoundingBoxFromPool(worldObj, MathHelper.floor_double(d), MathHelper.floor_double(d1), MathHelper.floor_double(d2)) != null)
 						solidBlock = true;
 				}
 		//set or unset noclip based on what bat will collide into
@@ -835,7 +835,7 @@ public abstract class BBEntityBat extends EntityLiving {
 		int i = MathHelper.floor_double(posX);
 		int j = MathHelper.floor_double(boundingBox.minY);
 		int k = MathHelper.floor_double(posZ);
-		if (isCeilingBlock(worldObj.func_147439_a(i, j + 1, k)) && !isInvalidTravelBlock(i, j, k) && worldObj.getBlockLightValue(i, j, k) <= maxCeilingLight()) {
+		if (isCeilingBlock(worldObj.getBlock(i, j + 1, k)) && !isInvalidTravelBlock(i, j, k) && worldObj.getBlockLightValue(i, j, k) <= maxCeilingLight()) {
 			setPosition(i + 0.5D, j + 1 - getScale(), k + 0.5D);
 			boolean flag = true;
 			List<?> list = worldObj.getEntitiesWithinAABBExcludingEntity(this, boundingBox);
@@ -886,7 +886,7 @@ public abstract class BBEntityBat extends EntityLiving {
 			int k = MathHelper.floor_double(ep.boundingBox.minY) + rand.nextInt(3);
 			for (int l = 0; l <= 4; l++) {
 				for (int i1 = 0; i1 <= 4; i1++) {
-					if ((l < 1 || i1 < 1 || l > 3 || i1 > 3) && worldObj.func_147437_c(i + l, k, j + i1)) {
+					if ((l < 1 || i1 < 1 || l > 3 || i1 > 3) && worldObj.isAirBlock(i + l, k, j + i1)) {
 						setLocationAndAngles(i + l + 0.5F, k, j + i1 + 0.5F, rotationYaw, rotationPitch);
 						return;
 					}
@@ -936,7 +936,7 @@ public abstract class BBEntityBat extends EntityLiving {
 	}
 
 	protected boolean isCeilingBlock(Block bid) {
-		return bid.func_149662_c();
+		return bid.isOpaqueCube();
 	}
 
 	protected boolean isFavoredTravelBlock(int i, int j, int k) {
@@ -944,7 +944,7 @@ public abstract class BBEntityBat extends EntityLiving {
 	}
 
 	protected boolean isInvalidTravelBlock(int i, int j, int k) {
-		return !(worldObj.func_147439_a(i, j, k) == Blocks.air || worldObj.func_147439_a(i, j, k) == Blocks.leaves);
+		return !(worldObj.getBlock(i, j, k) == Blocks.air || worldObj.getBlock(i, j, k) == Blocks.leaves);
 	}
 
 	protected boolean isLooseBlock(Block bid) {

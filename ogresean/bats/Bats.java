@@ -43,7 +43,7 @@ public class Bats{
         for(int i=0; i<batsName.length; i++){
             EntityRegistry.registerModEntity(bats[i], batsName[i]+"Bat", i, mod, 80, 3, false);
             if(i!=2&&i!=4){
-                addSpawn(bats[i], batSpawnList.get(i), BiomeGenBase.func_150565_n());
+                addSpawn(bats[i], batSpawnList.get(i), BiomeGenBase.getBiomeGenArray());
             }
         }
         addSpawn(bats[2], batSpawnList.get(2), BiomeDictionary.getBiomesForType(BiomeDictionary.Type.FOREST));
@@ -140,7 +140,7 @@ public class Bats{
     }
 
 	protected static boolean validSpawnArea(BBEntityBat bat, int x, int y, int z) {
-		if (!bat.worldObj.func_147437_c(x, y, z)) {
+		if (!bat.worldObj.isAirBlock(x, y, z)) {
 			return false;
 		}
 		BiomeGenBase mobspawnerbase = bat.worldObj.getWorldChunkManager().getBiomeGenAt(x, z);

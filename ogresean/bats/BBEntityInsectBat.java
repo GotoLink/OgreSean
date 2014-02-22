@@ -36,7 +36,7 @@ public class BBEntityInsectBat extends BBEntityBat {
 	@Override
 	protected void applyEntityAttributes() {
 		super.applyEntityAttributes();
-		this.getEntityAttribute(SharedMonsterAttributes.maxHealth).setAttribute(3D);
+		this.getEntityAttribute(SharedMonsterAttributes.maxHealth).setBaseValue(3D);
 	}
 
 	@Override

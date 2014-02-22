@@ -270,7 +270,7 @@ public class EntityCreeperSwarm extends EntityCreeper {
 	@Override
 	public void onDeath(DamageSource d) {
 		if (currentAction == 1)
-            func_145779_a(func_146068_u(), rand.nextInt(4) + 1);
+            dropItem(getDropItem(), rand.nextInt(4) + 1);
 		super.onDeath(d);
 	}
 
@@ -303,7 +303,7 @@ public class EntityCreeperSwarm extends EntityCreeper {
 		} else {
 			moveSpeed = 1.25F;
 		}
-		this.getEntityAttribute(SharedMonsterAttributes.movementSpeed).setAttribute(moveSpeed);
+		this.getEntityAttribute(SharedMonsterAttributes.movementSpeed).setBaseValue(moveSpeed);
 	}
 
 	/*
@@ -335,7 +335,7 @@ public class EntityCreeperSwarm extends EntityCreeper {
 		for (int i0 = i - 2; i0 < i + 2; i0++)
 			for (int j0 = j - 2; j0 < j + 2; j0++)
 				for (int k0 = k - 2; k0 < k + 2; k0++) {
-					bid = worldObj.func_147439_a(i0, j0, k0);
+					bid = worldObj.getBlock(i0, j0, k0);
 					if (bid == Blocks.wooden_door || bid == Blocks.iron_door || bid == Blocks.glass || bid == Blocks.glass_pane) {
 						currentAction = 4;
 						xT = i0;

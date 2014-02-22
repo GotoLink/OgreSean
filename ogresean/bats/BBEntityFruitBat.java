@@ -27,7 +27,7 @@ public class BBEntityFruitBat extends BBEntityBat {
 	public boolean attackEntityFrom(DamageSource d, float i) {
 		if (heldItem != null) {
 			heldItem.age = 5600;
-			heldItem.field_145804_b = 20;
+			heldItem.delayBeforeCanPickup = 20;
 			heldItem.motionX = rand.nextFloat() / 10D - 0.05D;
 			heldItem.motionY = rand.nextFloat() / 20D;
 			heldItem.motionZ = rand.nextFloat() / 10D - 0.05D;
@@ -67,7 +67,7 @@ public class BBEntityFruitBat extends BBEntityBat {
 	public boolean interact(EntityPlayer entityplayer) {
 		if (heldItem != null) {
 			heldItem.age = 5600;
-			heldItem.field_145804_b = 20;
+			heldItem.delayBeforeCanPickup = 20;
 			heldItem.motionX = rand.nextFloat() / 10D - 0.05D;
 			heldItem.motionY = rand.nextFloat() / 20D;
 			heldItem.motionZ = rand.nextFloat() / 10D - 0.05D;
@@ -179,7 +179,7 @@ public class BBEntityFruitBat extends BBEntityBat {
 		heldItem.motionY = 0D;
 		heldItem.motionZ = 0D;
 		heldItem.age = 5900;
-		heldItem.field_145804_b = 200;
+		heldItem.delayBeforeCanPickup = 200;
 		heldItem.setPosition(posX, boundingBox.minY - 0.22, posZ);
 	}
 
@@ -217,7 +217,7 @@ public class BBEntityFruitBat extends BBEntityBat {
 		super.sleepingUpdate();
 		if (heldItem != null) {
 			heldItem.age = 5600;
-			heldItem.field_145804_b = 20;
+			heldItem.delayBeforeCanPickup = 20;
 			heldItem = null;
 		}
 	}

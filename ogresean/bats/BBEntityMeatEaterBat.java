@@ -46,7 +46,7 @@ public class BBEntityMeatEaterBat extends BBEntityBat {
 	@Override
 	protected void applyEntityAttributes() {
 		super.applyEntityAttributes();
-		this.getEntityAttribute(SharedMonsterAttributes.maxHealth).setAttribute(6D);
+		this.getEntityAttribute(SharedMonsterAttributes.maxHealth).setBaseValue(6D);
 	}
 
 	@Override

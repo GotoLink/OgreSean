@@ -64,7 +64,7 @@ public class RandomItemSpawn {
 				int x0 = x + world.rand.nextInt(7) - 3;
 				int y0 = y + world.rand.nextInt(7) - 3;
 				int z0 = z + world.rand.nextInt(7) - 3;
-				if (world.func_147439_a(x0, y0, z0) != Blocks.air)
+				if (!world.isAirBlock(x0, y0, z0))
 					continue;
 				item = new EntityItem(world, x0, y0, z0, itemChoices[world.rand.nextInt(itemChoices.length)].copy());
 				item.age = 1000 * world.rand.nextInt(6);

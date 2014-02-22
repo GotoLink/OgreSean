@@ -43,7 +43,7 @@ public class RainingBombSquid {
 					int explosionSize = world.rand.nextInt(1 + world.difficultySetting.ordinal()) + 1;
 					world.createExplosion(sq, sq.posX, sq.posY, sq.posZ, explosionSize, true);
 					//sq.dropFewItems(false);
-				} else if (sq.func_145782_y() % 2 == 0) { //block shuffler squid
+				} else if (sq.getEntityId() % 2 == 0) { //block shuffler squid
 					int shuffleSize = world.rand.nextInt(1 + world.difficultySetting.ordinal()) + 1;
 					for (int x = -shuffleSize; x <= shuffleSize; x++)
 						for (int y = -shuffleSize; y <= shuffleSize; y++)
@@ -52,7 +52,7 @@ public class RainingBombSquid {
 								int n = MathHelper.floor_double(sq.boundingBox.minY) + y;
 								int o = MathHelper.floor_double(sq.posZ) + z;
 								//get all common blocks near squid
-								Block bid = sq.worldObj.func_147439_a(m, n, o);
+								Block bid = sq.worldObj.getBlock(m, n, o);
 								//convert these common solid blocks to fallingsand
 								if (bid == Blocks.dirt || bid == Blocks.grass || bid == Blocks.sand || bid == Blocks.gravel || bid == Blocks.stone) {
 									EntityFallingBlock efs = new EntityFallingBlock(sq.worldObj, m, n, o, bid);
@@ -66,20 +66,19 @@ public class RainingBombSquid {
 												(sq.posZ + world.rand.nextFloat() * sq.width * 2.0F) - sq.width, d, d1, d2);
 									}
 									efs.worldObj.spawnEntityInWorld(efs);
-									efs.worldObj.func_147468_f(m, n, o);
 								}
 							}
 				} else { // Lava/Water Squid
 					int floodSize = world.rand.nextInt(1 + world.difficultySetting.ordinal()) + 1;
-					Block floodBlock = sq.func_145782_y() % 5 == 0 ? Blocks.flowing_lava : Blocks.flowing_water;
+					Block floodBlock = sq.getEntityId() % 5 == 0 ? Blocks.flowing_lava : Blocks.flowing_water;
 					for (int x = -floodSize; x <= floodSize; x++)
 						for (int y = -floodSize; y <= floodSize; y++)
 							for (int z = -floodSize; z <= floodSize; z++) {
 								int m = MathHelper.floor_double(sq.posX) + x;
 								int n = MathHelper.floor_double(sq.boundingBox.minY) + y;
 								int o = MathHelper.floor_double(sq.posZ) + z;
-								if (sq.worldObj.func_147439_a(m, n, o) == Blocks.air)
-									sq.worldObj.func_147465_d(m, n, o, floodBlock, 0, 3);
+								if (sq.worldObj.isAirBlock(m, n, o))
+									sq.worldObj.setBlock(m, n, o, floodBlock, 0, 3);
 							}
 				}
 				sq.setDead();
@@ -90,12 +89,12 @@ public class RainingBombSquid {
 				if (!sq.getEntityData().getBoolean("RainingSquidFlag")) {
 					sq.setHealth(200);
 					sq.setFire(400);
-					sq.motionY -= sq.func_145782_y() % 4 == 0 ? 0.009D : 0.002D;
-					sq.motionX += sq.func_145782_y() % 3 == 0 ? 0.009D : -0.009D;
-					sq.motionZ += sq.func_145782_y() % 2 == 0 ? 0.009D : -0.009D;
-					sq.motionY *= sq.func_145782_y() % 5 == 0 ? 0.96D : 1.032D;
-					sq.motionX *= sq.func_145782_y() % 6 == 0 ? 0.98D : 1.025D;
-					sq.motionZ *= sq.func_145782_y() % 7 == 0 ? 0.98D : 1.025D;
+					sq.motionY -= sq.getEntityId() % 4 == 0 ? 0.009D : 0.002D;
+					sq.motionX += sq.getEntityId() % 3 == 0 ? 0.009D : -0.009D;
+					sq.motionZ += sq.getEntityId() % 2 == 0 ? 0.009D : -0.009D;
+					sq.motionY *= sq.getEntityId() % 5 == 0 ? 0.96D : 1.032D;
+					sq.motionX *= sq.getEntityId() % 6 == 0 ? 0.98D : 1.025D;
+					sq.motionZ *= sq.getEntityId() % 7 == 0 ? 0.98D : 1.025D;
 					for (int j = 0; j < 2 + world.rand.nextInt(4); j++) {
 						double d = world.rand.nextGaussian() * 0.02D;
 						double d1 = world.rand.nextGaussian() * 0.02D;
@@ -104,7 +103,7 @@ public class RainingBombSquid {
 								* sq.width * 2.0F)
 								- sq.width, d, d1, d2);
 					}
-				} else if (sq.func_145782_y() % 2 == 0) { //block shuffler squids fall slower
+				} else if (sq.getEntityId() % 2 == 0) { //block shuffler squids fall slower
 					sq.setHealth(200);
 					sq.motionY *= 0.5D + (sq.ticksExisted % 100) * 0.003;
 					sq.motionX += -0.005D + (sq.ticksExisted % 100) * 0.0001;
@@ -126,7 +125,7 @@ public class RainingBombSquid {
 						double d = world.rand.nextGaussian() * 0.02D;
 						double d1 = world.rand.nextGaussian() * 0.02D;
 						double d2 = world.rand.nextGaussian() * 0.02D;
-						world.spawnParticle(sq.func_145782_y() % 5 == 0 ? "lava" : "bubble", (sq.posX + world.rand.nextFloat() * sq.width * 2.0F) - sq.width, sq.posY + world.rand.nextFloat() * sq.height,
+						world.spawnParticle(sq.getEntityId() % 5 == 0 ? "lava" : "bubble", (sq.posX + world.rand.nextFloat() * sq.width * 2.0F) - sq.width, sq.posY + world.rand.nextFloat() * sq.height,
 								(sq.posZ + world.rand.nextFloat() * sq.width * 2.0F) - sq.width, d, d1, d2);
 					}
 				}

@@ -43,9 +43,9 @@ public class CreeperSwarm {
 	}
 
     private static BiomeGenBase[] getSpawn(){
-        BiomeGenBase[] result = new BiomeGenBase[BiomeGenBase.field_150597_n.size()];
+        BiomeGenBase[] result = new BiomeGenBase[BiomeGenBase.explorationBiomesList.size()];
         int i = 0;
-        for(Iterator<BiomeGenBase> itr = BiomeGenBase.field_150597_n.iterator(); itr.hasNext(); ++i){
+        for(Iterator<BiomeGenBase> itr = BiomeGenBase.explorationBiomesList.iterator(); itr.hasNext(); ++i){
             result[i] = itr.next();
         }
         return result;

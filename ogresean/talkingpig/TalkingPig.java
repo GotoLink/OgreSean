@@ -45,7 +45,7 @@ public class TalkingPig{
 							s = rand.nextBoolean() ? "$P$! We pigs have feelings! Don't hurt him!" : "$P$! How could you!? He's my kind!";
 						else
 							s = rand.nextBoolean() ? "Leave that poor $A$ alone, $P$!" : "$P$, don't abuse that $A$!";
-						((EntityPlayer) source).func_146105_b(new ChatComponentText("�a<".concat(pig.getCustomNameTag()).concat("> �e")
+						((EntityPlayer) source).addChatComponentMessage(new ChatComponentText("�a<".concat(pig.getCustomNameTag()).concat("> �e")
                                 .concat(s.format(s, "$P$", pig.getOwnerName(), "$A$", EntityList.getEntityString(event.entityLiving)))));
 						break;
 					}
@@ -63,7 +63,7 @@ public class TalkingPig{
 			etp.setPosition(event.player.posX, event.player.posY, event.player.posZ);
 			etp.setOwner(event.player.getCommandSenderName());
             event.player.getEntityData().setString("TalkingPigName", etp.getCustomNameTag());
-            event.player.func_146105_b(new ChatComponentText("�a<".concat(etp.getCustomNameTag()).concat("> �e").concat("Hi ").concat(etp.getOwnerName()).concat("! My name is ")
+            event.player.addChatComponentMessage(new ChatComponentText("�a<".concat(etp.getCustomNameTag()).concat("> �e").concat("Hi ").concat(etp.getOwnerName()).concat("! My name is ")
 					.concat(etp.getCustomNameTag().concat(" the pig. Nice to meet you!"))));
 			if (!event.player.worldObj.isRemote) {
                 event.player.worldObj.spawnEntityInWorld(etp);

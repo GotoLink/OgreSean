@@ -18,7 +18,6 @@ import net.minecraft.init.Items;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
-import net.minecraft.util.ChatComponentStyle;
 import net.minecraft.util.ChatComponentText;
 import net.minecraft.util.DamageSource;
 import net.minecraft.util.MathHelper;
@@ -90,9 +89,9 @@ public class EntityTalkingPig extends EntityPig {
 	static {
 		edibleFoods.put(Items.feather, 260);
 		edibleFoods.put(Items.wheat_seeds, 380);
-		edibleFoods.put(Item.func_150898_a(Blocks.red_flower), 420);
-		edibleFoods.put(Item.func_150898_a(Blocks.yellow_flower), 420);
-		edibleFoods.put(Item.func_150898_a(Blocks.pumpkin), 460);
+		edibleFoods.put(Item.getItemFromBlock(Blocks.red_flower), 420);
+		edibleFoods.put(Item.getItemFromBlock(Blocks.yellow_flower), 420);
+		edibleFoods.put(Item.getItemFromBlock(Blocks.pumpkin), 460);
 		edibleFoods.put(Items.bone, 480);
 		edibleFoods.put(Items.reeds, 560);
 		edibleFoods.put(Items.sugar, 700);
@@ -104,8 +103,8 @@ public class EntityTalkingPig extends EntityPig {
 		edibleFoods.put(Items.cooked_fished, 2600);
 		edibleFoods.put(Items.bread, 3600);
 		edibleFoods.put(Items.apple, 3900);
-		edibleFoods.put(Item.func_150898_a(Blocks.brown_mushroom), 4200);
-		edibleFoods.put(Item.func_150898_a(Blocks.red_mushroom), 4200);
+		edibleFoods.put(Item.getItemFromBlock(Blocks.brown_mushroom), 4200);
+		edibleFoods.put(Item.getItemFromBlock(Blocks.red_mushroom), 4200);
 		edibleFoods.put(Items.cake, 7200);
 		edibleFoods.put(Items.golden_apple, 8800);
 		edibleFoods.put(Items.bowl, 9600);
@@ -181,11 +180,11 @@ public class EntityTalkingPig extends EntityPig {
 					str = "I can't eat that!";
 			} else
 				str = "I couldn't eat another bite. I'm stuffed.";
-			entityplayer.func_146105_b(new ChatComponentText("�a<".concat(getCustomNameTag()).concat("> �e").concat(str)));
+			entityplayer.addChatComponentMessage(new ChatComponentText("�a<".concat(getCustomNameTag()).concat("> �e").concat(str)));
 			return true;
 		}//else if stick, show stat screen
 		else if (itemstack != null && itemstack.getItem() == Items.stick && entityplayer.getCommandSenderName().equals(getOwnerName())) {
-			entityplayer.openGui(OgreSeanMods.instance, 0, worldObj, this.func_145782_y(), 0, 0);
+			entityplayer.openGui(OgreSeanMods.instance, 0, worldObj, this.getEntityId(), 0, 0);
 			return true;
 		} else
 			return super.interact(entityplayer);
@@ -210,9 +209,9 @@ public class EntityTalkingPig extends EntityPig {
 	public void onDeath(DamageSource d) {
 		Entity entity = d.getSourceOfDamage();
 		if (entity instanceof EntityPlayer) {
-			((EntityPlayer) entity).func_146105_b(new ChatComponentText("�3You killed ".concat(getCustomNameTag()).concat(". Enjoy your pork, you heartless monster.")));
-			this.func_145779_a(Items.porkchop, 4);
-			this.func_145779_a(Items.bone, 3);
+			((EntityPlayer) entity).addChatComponentMessage(new ChatComponentText("�3You killed ".concat(getCustomNameTag()).concat(". Enjoy your pork, you heartless monster.")));
+			this.dropItem(Items.porkchop, 4);
+			this.dropItem(Items.bone, 3);
 		}
 		if (owner != null) {
 			owner.getEntityData().setBoolean("TalkingPigDead", true);
@@ -236,20 +235,20 @@ public class EntityTalkingPig extends EntityPig {
 		if (rand.nextFloat() < 0.01)
 			hunger -= endurance * 5;
 		if (hunger >= 3600 && hunger < 7200 && dist < 24 && status < 1) { //mildly hungry after 3 minutes
-			owner.func_146105_b(new ChatComponentText("�a<".concat(getCustomNameTag()).concat("> �e").concat("I'm hungry. Feed me some food!")));
+			owner.addChatComponentMessage(new ChatComponentText("�a<".concat(getCustomNameTag()).concat("> �e").concat("I'm hungry. Feed me some food!")));
 			phraseTimer = 300;
 			status = 1;
 		} else if (hunger >= 7200 && hunger < 12000 && dist < 24 && status < 2) { //very hungry after 6 minutes
-			owner.func_146105_b(new ChatComponentText("�a<".concat(getCustomNameTag()).concat("> �e").concat("I'm starving! Feed me some food already!")));
+			owner.addChatComponentMessage(new ChatComponentText("�a<".concat(getCustomNameTag()).concat("> �e").concat("I'm starving! Feed me some food already!")));
 			phraseTimer = 300;
 			status = 2;
 		} else if (hunger >= 12000 && hunger < 13200 && dist < 24 && status < 3) { //extremely hungry after 10 minutes
-			owner.func_146105_b(new ChatComponentText("�a<".concat(getCustomNameTag()).concat("> �e").concat("...cough....so....hungry...need....food....")));
+			owner.addChatComponentMessage(new ChatComponentText("�a<".concat(getCustomNameTag()).concat("> �e").concat("...cough....so....hungry...need....food....")));
 			moveSpeed = 0.1F;
 			phraseTimer = 300;
 			status = 3;
 		} else if (hunger >= 13200 && dist < 24) { //dead after 11 minutes
-			owner.func_146105_b(new ChatComponentText("�3You let ".concat(getCustomNameTag()).concat(" starve to death. Such horrible neglect...")));
+			owner.addChatComponentMessage(new ChatComponentText("�3You let ".concat(getCustomNameTag()).concat(" starve to death. Such horrible neglect...")));
 			setHealth(0);
 		}
 		//if had been hurt by player, gradually recover if healthy
@@ -268,7 +267,7 @@ public class EntityTalkingPig extends EntityPig {
 		else if (phraseTimer == 0) {
 			phraseTimer = 200 + rand.nextInt(401);
 			if (hunger > 12000)
-				owner.func_146105_b(new ChatComponentText("�a<".concat(getCustomNameTag()).concat("> �e").concat("So hungry....")));
+				owner.addChatComponentMessage(new ChatComponentText("�a<".concat(getCustomNameTag()).concat("> �e").concat("So hungry....")));
 			else if (rand.nextFloat() < (0.15F + (skillLevel) / 50F)) //skillLevel influences mushroom finding rater
 				findMushroom();
 			else
@@ -573,14 +572,14 @@ public class EntityTalkingPig extends EntityPig {
 			j = MathHelper.floor_double((posX + rand.nextInt(13)) - 6D);
 			k = MathHelper.floor_double((posY + rand.nextInt(7)) - 3D);
 			l = MathHelper.floor_double((posZ + rand.nextInt(13)) - 6D);
-			if (bid.func_149718_j(worldObj, j, k, l) && worldObj.func_147437_c(j, k, l)) {
+			if (bid.canBlockStay(worldObj, j, k, l) && worldObj.isAirBlock(j, k, l)) {
 				flag = true;
 				break;
 			}
 		}
 		if (flag) {
-			worldObj.func_147465_d(j, k, l, rand.nextFloat() < 0.5 ? Blocks.brown_mushroom : Blocks.red_mushroom, 0, 2);
-			owner.func_146105_b(new ChatComponentText("�a<".concat(getCustomNameTag()).concat("> �e").concat("I smell a mushroom close by!")));
+			worldObj.setBlock(j, k, l, rand.nextFloat() < 0.5 ? Blocks.brown_mushroom : Blocks.red_mushroom, 0, 2);
+			owner.addChatComponentMessage(new ChatComponentText("�a<".concat(getCustomNameTag()).concat("> �e").concat("I smell a mushroom close by!")));
 		}
 	}
 
@@ -597,7 +596,7 @@ public class EntityTalkingPig extends EntityPig {
 	}
 
 	private void sayAttackPhrase() {
-		owner.func_146105_b(new ChatComponentText("�a<".concat(getCustomNameTag()).concat("> �e").concat(attackPhrases[rand.nextInt(attackPhrases.length)]).replace("$T$", EntityList.getEntityString(entityToAttack))));
+		owner.addChatComponentMessage(new ChatComponentText("�a<".concat(getCustomNameTag()).concat("> �e").concat(attackPhrases[rand.nextInt(attackPhrases.length)]).replace("$T$", EntityList.getEntityString(entityToAttack))));
 	}
 
 	private void sayHurt(Entity entity) {
@@ -636,10 +635,10 @@ public class EntityTalkingPig extends EntityPig {
 				break;
 			}
 		}
-		owner.func_146105_b(new ChatComponentText("�a<".concat(getCustomNameTag()).concat("> �e").concat(str.replace("$P$", getOwnerName()))));
+		owner.addChatComponentMessage(new ChatComponentText("�a<".concat(getCustomNameTag()).concat("> �e").concat(str.replace("$P$", getOwnerName()))));
 	}
 
 	private void sayIdlePhrase() {
-		owner.func_146105_b(new ChatComponentText("�a<".concat(getCustomNameTag()).concat("> �e").concat(idlePhrases[rand.nextInt(idlePhrases.length)]).replace("$P$", getOwnerName())));
+		owner.addChatComponentMessage(new ChatComponentText("�a<".concat(getCustomNameTag()).concat("> �e").concat(idlePhrases[rand.nextInt(idlePhrases.length)]).replace("$P$", getOwnerName())));
 	}
 }
