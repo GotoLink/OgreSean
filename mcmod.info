@@ -9,7 +9,7 @@
   "mcversion": $mcversion,
   "url": "http://www.minecraftforum.net/topic/157524-",
   "updateUrl": "",
-  "authors": ["OgreSean","GotoLink"],
+  "authorList": ["OgreSean","GotoLink"],
   "parent":"",
   "screenshots": [],
   "dependencies": []

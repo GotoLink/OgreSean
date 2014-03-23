@@ -95,7 +95,7 @@ public class Bats{
 			return nightBatSpawnRate;
 	}
 
-	public static boolean preLoad(Configuration config) {
+	public boolean preLoad(Configuration config) {
 		dayBatSpawnRate = config.get("Bats", "Spawn rate by day", dayBatSpawnRate).getInt(dayBatSpawnRate);
 		if (dayBatSpawnRate > 400)
 			dayBatSpawnRate = 400;

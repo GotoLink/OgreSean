@@ -72,7 +72,7 @@ public class TalkingPig{
 	}
 
 	@SideOnly(Side.CLIENT)
-	public static void addRenderer(Object mod) {
+	public void addRenderer(Object mod) {
 		RenderingRegistry.registerEntityRenderingHandler(EntityTalkingPig.class, new RenderTalkingPig(new ModelPig(), new ModelPig(0.5F), 0.7F));
 		NetworkRegistry.INSTANCE.registerGuiHandler(mod, new PigGuiHandler());
 	}
