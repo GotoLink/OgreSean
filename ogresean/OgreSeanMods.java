@@ -1,6 +1,7 @@
 package ogresean;
 
 import cpw.mods.fml.common.FMLCommonHandler;
+import cpw.mods.fml.common.ModContainer;
 import net.minecraft.world.biome.BiomeGenBase;
 import net.minecraftforge.common.config.Configuration;
 import ogresean.bats.Bats;
@@ -13,7 +14,7 @@ import cpw.mods.fml.common.event.FMLPreInitializationEvent;
 
 import java.util.Iterator;
 
-@Mod(modid = "ogreseanmods", name = "OgreSean Mods", version = "0.2")
+@Mod(modid = "ogreseanmods", name = "OgreSean Mods", useMetadata = true)
 public class OgreSeanMods {
 	@Instance("ogreseanmods")
 	public static OgreSeanMods instance;
@@ -65,6 +66,16 @@ public class OgreSeanMods {
             easyNPCs.loadConfig(event);
         }
         config.save();
+        if(event.getSourceFile().getName().endsWith(".jar") && event.getSide().isClient()){
+            try {
+                Class.forName("mods.mud.ModUpdateDetector").getDeclaredMethod("registerMod", ModContainer.class, String.class, String.class).invoke(null,
+                        FMLCommonHandler.instance().findContainerFor(this),
+                        "https://raw.github.com/GotoLink/OgreSean/master/update.xml",
+                        "https://raw.github.com/GotoLink/OgreSean/master/changelog.md"
+                );
+            } catch (Throwable e) {
+            }
+        }
 	}
 
     public static BiomeGenBase[] getSpawn(){

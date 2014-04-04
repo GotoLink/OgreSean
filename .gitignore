@@ -6,3 +6,7 @@
 !build.gradle
 !mcmod.info
 !pack.mcmceta
+!/gradle/
+!gradle*
+!update.xml
+!changelog.md

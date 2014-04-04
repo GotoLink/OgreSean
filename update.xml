@@ -1,0 +1,21 @@
+<mod modid="ogreseanmods">
+    <mcVersion version="1.7.2">
+        <release type="release" version="0.2"
+                 url="http://www.minecraftforum.net/topic/1651891-"
+                 download="http://www.mediafire.com/download/213g239753mnb33/OgreSeanMods-0.2(1.7.2).jar"
+                 md5="0A05C7A3880731B92ED8FE071C822984"
+                />
+    </mcVersion>
+	<mcVersion version="1.6.4">
+        <release type="release" version="0.2"
+                 url="http://www.minecraftforum.net/topic/1651891-"
+                 download="http://www.mediafire.com/download/utpaw3pz2z7zldq/OgreSeanMods-0.2(1.6.X).jar"
+                 md5="24250F28C3B290222153CC30A130D0C3"
+                />
+        <release type="release" version="0.1"
+                 url="http://www.minecraftforum.net/topic/1651891-"
+                 download="http://www.mediafire.com/download/v580jwbvd8bwwad/OgreSean_mods_0.1(1.6.X).zip"
+                 md5=""
+                />
+    </mcVersion>
+</mod>
