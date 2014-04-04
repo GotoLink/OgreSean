@@ -1,5 +1,7 @@
 package ogresean.bats;
 
+import cpw.mods.fml.relauncher.Side;
+import cpw.mods.fml.relauncher.SideOnly;
 import net.minecraft.client.renderer.Tessellator;
 import net.minecraft.client.renderer.entity.RenderLiving;
 import net.minecraft.entity.Entity;
@@ -10,13 +12,16 @@ import net.minecraft.util.ResourceLocation;
 
 import org.lwjgl.opengl.GL11;
 
+@SideOnly(Side.CLIENT)
 public class BBRenderBat extends RenderLiving {
 	//static private final ItemStack slime = new ItemStack(Item.slimeBall);
-	private BBModelBat batModel;
+	private final BBModelBat batModel;
+    private final ResourceLocation batTexture;
 
-	public BBRenderBat(BBModelBat modelbat, float f) {
-		super(modelbat, f);
-		batModel = modelbat;
+	public BBRenderBat(String texture, float f) {
+		super(new BBModelBat(), f);
+		batModel = (BBModelBat)mainModel;
+        batTexture = new ResourceLocation("ogresean", "textures/bat/"+texture+"Bat.png");
 	}
 
 	//	//from RenderBiped
@@ -121,7 +126,7 @@ public class BBRenderBat extends RenderLiving {
 
 	@Override
 	protected ResourceLocation getEntityTexture(Entity entity) {
-		return ((BBEntityBat) entity).getTexture();
+		return batTexture;
 	}
 
 	@Override

@@ -69,11 +69,6 @@ public class BBEntityBloodEaterBat extends BBEntityBat {
 	}
 
 	@Override
-	public ResourceLocation getTexture() {
-		return bloodEater;
-	}
-
-	@Override
 	public void playerEntityAttack(Entity e) {
 		if (getBatAction() == 4 && e != this) {
 			attackTarget = e;

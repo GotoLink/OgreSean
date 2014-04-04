@@ -81,11 +81,6 @@ public class BBEntityNectarBat extends BBEntityBat {
 	}
 
 	@Override
-	public ResourceLocation getTexture() {
-		return nectar;
-	}
-
-	@Override
 	protected void applyEntityAttributes() {
 		super.applyEntityAttributes();
 		this.getEntityAttribute(SharedMonsterAttributes.maxHealth).setBaseValue(4D);

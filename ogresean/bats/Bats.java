@@ -150,11 +150,11 @@ public class Bats{
 	@SideOnly(Side.CLIENT)
 	//each bat is a slightly different size
 	private static void addRenderers() {
-		RenderingRegistry.registerEntityRenderingHandler(BBEntityInsectBat.class, new BBRenderBat(new BBModelBat(), 0.4F));
-		RenderingRegistry.registerEntityRenderingHandler(BBEntityNectarBat.class, new BBRenderBat(new BBModelBat(), 0.44F));
-		RenderingRegistry.registerEntityRenderingHandler(BBEntityFruitBat.class, new BBRenderBat(new BBModelBat(), 0.48F));
-		RenderingRegistry.registerEntityRenderingHandler(BBEntityMeatEaterBat.class, new BBRenderBat(new BBModelBat(), 0.5F));
-		RenderingRegistry.registerEntityRenderingHandler(BBEntityBloodEaterBat.class, new BBRenderBat(new BBModelBat(), 0.32F));
+		RenderingRegistry.registerEntityRenderingHandler(BBEntityInsectBat.class, new BBRenderBat("insect", 0.4F));
+		RenderingRegistry.registerEntityRenderingHandler(BBEntityNectarBat.class, new BBRenderBat("nectar", 0.44F));
+		RenderingRegistry.registerEntityRenderingHandler(BBEntityFruitBat.class, new BBRenderBat("fruit", 0.48F));
+		RenderingRegistry.registerEntityRenderingHandler(BBEntityMeatEaterBat.class, new BBRenderBat("meatEater", 0.5F));
+		RenderingRegistry.registerEntityRenderingHandler(BBEntityBloodEaterBat.class, new BBRenderBat("bloodEater", 0.32F));
 	}
 
 	private static void onTickInGame(World world) {

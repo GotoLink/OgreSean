@@ -39,11 +39,6 @@ public class BBEntityMeatEaterBat extends BBEntityBat {
 	}
 
 	@Override
-	public ResourceLocation getTexture() {
-		return meatEater;
-	}
-
-	@Override
 	protected void applyEntityAttributes() {
 		super.applyEntityAttributes();
 		this.getEntityAttribute(SharedMonsterAttributes.maxHealth).setBaseValue(6D);

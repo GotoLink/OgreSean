@@ -59,11 +59,6 @@ public class BBEntityFruitBat extends BBEntityBat {
 	}
 
 	@Override
-	public ResourceLocation getTexture() {
-		return fruit;
-	}
-
-	@Override
 	public boolean interact(EntityPlayer entityplayer) {
 		if (heldItem != null) {
 			heldItem.age = 5600;

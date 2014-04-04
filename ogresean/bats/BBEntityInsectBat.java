@@ -29,11 +29,6 @@ public class BBEntityInsectBat extends BBEntityBat {
 	}
 
 	@Override
-	public ResourceLocation getTexture() {
-		return insect;
-	}
-
-	@Override
 	protected void applyEntityAttributes() {
 		super.applyEntityAttributes();
 		this.getEntityAttribute(SharedMonsterAttributes.maxHealth).setBaseValue(3D);

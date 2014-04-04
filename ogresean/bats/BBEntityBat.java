@@ -23,11 +23,6 @@ import net.minecraft.world.World;
 import net.minecraft.world.biome.BiomeGenBase;
 
 public abstract class BBEntityBat extends EntityLiving {
-    public static final ResourceLocation bloodEater = new ResourceLocation("ogresean", "textures/bat/bloodEaterBat.png");
-    public static final ResourceLocation insect = new ResourceLocation("ogresean", "textures/bat/insectBat.png");
-    public static final ResourceLocation fruit = new ResourceLocation("ogresean", "textures/bat/fruitBat.png");
-    public static final ResourceLocation meatEater = new ResourceLocation("ogresean", "textures/bat/meatEaterBat.png");
-    public static final ResourceLocation nectar = new ResourceLocation("ogresean", "textures/bat/nectarBat.png");
     public static final ResourceLocation cave = new ResourceLocation("ogresean", "textures/bat/caveBat.png");
 	public float wingb;
 	public float wingc;
@@ -201,10 +196,6 @@ public abstract class BBEntityBat extends EntityLiving {
 			return 240;
 		else
 			return 160;
-	}
-
-	public ResourceLocation getTexture() {
-		return cave;
 	}
 
 	public void handleAttacking() {
