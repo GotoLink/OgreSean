@@ -41,7 +41,7 @@ public class Bats{
 
 	public void load(boolean client, Object mod) {
         for(int i=0; i<batsName.length; i++){
-            EntityRegistry.registerModEntity(bats[i], batsName[i]+"Bat", i, mod, 80, 3, false);
+            EntityRegistry.registerModEntity(bats[i], batsName[i]+"Bat", i+1, mod, 80, 3, false);
             if(i!=2&&i!=4){
                 addSpawn(bats[i], batSpawnList.get(i), BiomeGenBase.getBiomeGenArray());
             }

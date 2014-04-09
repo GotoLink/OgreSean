@@ -23,7 +23,7 @@ import cpw.mods.fml.relauncher.SideOnly;
 
 public class TalkingPig{
 	public void load(boolean isClient, Object mod) {
-		EntityRegistry.registerModEntity(EntityTalkingPig.class, "TalkingPig", 6, mod, 80, 3, true);
+		EntityRegistry.registerModEntity(EntityTalkingPig.class, "TalkingPig", 10, mod, 80, 3, true);
 		FMLCommonHandler.instance().bus().register(this);
 		MinecraftForge.EVENT_BUS.register(this);
 		if (isClient) {

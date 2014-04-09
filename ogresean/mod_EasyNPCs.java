@@ -49,7 +49,7 @@ public class mod_EasyNPCs{
     public static int maxNPCs;
     public void load(boolean isClient, Object mod){
     	maxNPCs = getNumNPCsInMobFolder();
-        EntityRegistry.registerModEntity(OGSEEntityEasyNPC.class, "Easy NPC", 10, mod, 20, 3, false);
+        EntityRegistry.registerModEntity(OGSEEntityEasyNPC.class, "Easy NPC", 11, mod, 20, 3, false);
         EntityRegistry.addSpawn(OGSEEntityEasyNPC.class, 10, 1, 6, EnumCreatureType.monster, OgreSeanMods.getSpawn());
     	if(isClient)
             addRenderer();
