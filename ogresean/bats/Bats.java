@@ -173,11 +173,11 @@ public class Bats{
 			boolean leftClicking = ep.isSwingInProgress; //true if player holding down left mouse button
 			if (leftClicking && !assistants.get(ep.getCommandSenderName()).isEmpty()) {
 				//checks to see if player's cursor is over an entity or a block
-				Vec3 vec3 = world.getWorldVec3Pool().getVecFromPool(ep.posX, ep.posY, ep.posZ);
-				Vec3 vec31 = world.getWorldVec3Pool().getVecFromPool(ep.posX + ep.motionX, ep.posY + ep.motionY, ep.posZ + ep.motionZ);
+				Vec3 vec3 = Vec3.createVectorHelper(ep.posX, ep.posY, ep.posZ);
+				Vec3 vec31 = Vec3.createVectorHelper(ep.posX + ep.motionX, ep.posY + ep.motionY, ep.posZ + ep.motionZ);
 				MovingObjectPosition movingobjectposition = world.func_147447_a(vec3, vec31, true, true, false);
 				if (movingobjectposition != null) {
-					vec31 = world.getWorldVec3Pool().getVecFromPool(movingobjectposition.hitVec.xCoord, movingobjectposition.hitVec.yCoord, movingobjectposition.hitVec.zCoord);
+					vec31 = Vec3.createVectorHelper(movingobjectposition.hitVec.xCoord, movingobjectposition.hitVec.yCoord, movingobjectposition.hitVec.zCoord);
 				}
 				Entity entityTarget = null;
 				List<?> list = world.getEntitiesWithinAABBExcludingEntity(ep, ep.boundingBox.addCoord(ep.motionX, ep.motionY, ep.motionZ).expand(1.0D, 1.0D, 1.0D));
