@@ -11,7 +11,6 @@ import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.DamageSource;
 import net.minecraft.util.MathHelper;
-import net.minecraft.util.ResourceLocation;
 import net.minecraft.world.World;
 import net.minecraft.world.biome.BiomeGenBase;
 import net.minecraftforge.common.BiomeDictionary;
@@ -203,7 +202,7 @@ public class BBEntityNectarBat extends BBEntityBat {
 
 	@Override
 	protected boolean isFavoredTravelBlock(int i, int j, int k) {
-		return flowerTimer < 0 ? false : worldObj.getBlock(i, j, k) == Blocks.red_flower || worldObj.getBlock(i, j, k) == Blocks.yellow_flower;
+		return flowerTimer >= 0 && (worldObj.getBlock(i, j, k) == Blocks.red_flower || worldObj.getBlock(i, j, k) == Blocks.yellow_flower);
 	}
 
 	@Override

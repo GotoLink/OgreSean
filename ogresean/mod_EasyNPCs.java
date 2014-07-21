@@ -80,7 +80,7 @@ public class mod_EasyNPCs{
 		try{
 			   //open saved sign file; if does not exist, end method
 			   File file3 = new File(world.getSaveHandler().getWorldDirectory(), "easyNPCs.dat"); //signs file
-			   if(file3 == null || !file3.exists())
+			   if(!file3.exists())
 				   return;
 
 	           NBTTagCompound nbttagcompound = CompressedStreamTools.read(file3);

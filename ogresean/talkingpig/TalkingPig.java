@@ -46,7 +46,7 @@ public class TalkingPig{
 						else
 							s = rand.nextBoolean() ? "Leave that poor $A$ alone, $P$!" : "$P$, don't abuse that $A$!";
 						((EntityPlayer) source).addChatComponentMessage(new ChatComponentText("�a<".concat(pig.getCustomNameTag()).concat("> �e")
-                                .concat(s.format(s, "$P$", pig.getOwnerName(), "$A$", EntityList.getEntityString(event.entityLiving)))));
+                                .concat(String.format(s, "$P$", pig.getOwnerName(), "$A$", EntityList.getEntityString(event.entityLiving)))));
 						break;
 					}
 				}

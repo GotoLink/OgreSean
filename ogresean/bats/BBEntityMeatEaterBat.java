@@ -7,7 +7,6 @@ import net.minecraft.entity.passive.EntityChicken;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.init.Items;
 import net.minecraft.item.ItemStack;
-import net.minecraft.util.ResourceLocation;
 import net.minecraft.world.World;
 import net.minecraft.world.biome.BiomeGenBase;
 
@@ -137,7 +136,7 @@ public class BBEntityMeatEaterBat extends BBEntityBat {
 
 	@Override
 	protected boolean isTamingItemID(ItemStack id) {
-		return isRabid ? false : (id!=null && id.getItem() == Items.fish);
+		return !isRabid && (id!=null && id.getItem() == Items.fish);
 	}
 
 	@Override

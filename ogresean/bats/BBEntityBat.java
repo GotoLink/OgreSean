@@ -54,8 +54,8 @@ public abstract class BBEntityBat extends EntityLiving {
     @Override
     public void entityInit(){
         super.entityInit();
-        this.dataWatcher.addObject(20, Byte.valueOf((byte) 0));
-        this.dataWatcher.addObject(21, Byte.valueOf((byte) 0));
+        this.dataWatcher.addObject(20, (byte) 0);
+        this.dataWatcher.addObject(21, (byte) 0);
     }
 
     /**
@@ -128,10 +128,7 @@ public abstract class BBEntityBat extends EntityLiving {
 	//tamed bats don't despawn
 	@Override
 	public boolean canDespawn() {
-		if (getBatAction() > 2)
-			return false;
-		else
-			return super.canDespawn();
+		return getBatAction() <= 2 && super.canDespawn();
 	}
 
 	public void faceLocation(int i, int j, int k, float f) {
@@ -239,7 +236,7 @@ public abstract class BBEntityBat extends EntityLiving {
 			return true;
 		} else if (entityplayer.getCurrentEquippedItem() != null) {
 			ItemStack item = entityplayer.getCurrentEquippedItem();
-			if (item != null && item.getItem()==Items.feather && getBatAction() == 4) {
+			if (item.getItem()==Items.feather && getBatAction() == 4) {
 				setBatAction((byte)5);
 				wayPoints = null;
 			}
@@ -968,7 +965,7 @@ public abstract class BBEntityBat extends EntityLiving {
 	}
 
 	protected float rotationUpdate(float f, float f1, float f2) {
-		float f3 = f1;
+		float f3;
 		for (f3 = f1 - f; f3 < -180F; f3 += 360F) {
 		}
 		for (; f3 >= 180F; f3 -= 360F) {
@@ -1119,7 +1116,7 @@ public abstract class BBEntityBat extends EntityLiving {
 	}
 
 	protected void wakeUpNearbyBats(double range) {
-		BBEntityBat bat = null;
+		BBEntityBat bat;
 		int batCount = 0;
 		List<?> list = worldObj.getEntitiesWithinAABBExcludingEntity(this, boundingBox.expand(range, range, range));
 		for (int i = 0; i < list.size(); i++) {

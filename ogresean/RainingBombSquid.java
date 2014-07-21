@@ -36,7 +36,6 @@ public class RainingBombSquid {
 			if (sq == null || sq.isDead) { //remove dead squids
 				bombSquids.remove(i);
 				i--;
-				continue;
 			} else if (sq.isCollided || sq.isInWater() || sq.onGround) { //squids that are no longer in air explode
 				if (!sq.getEntityData().getBoolean("RainingSquidFlag")) {
 					//explode squid
@@ -84,7 +83,6 @@ public class RainingBombSquid {
 				sq.setDead();
 				bombSquids.remove(i);
 				i--;
-				continue;
 			} else {
 				if (!sq.getEntityData().getBoolean("RainingSquidFlag")) {
 					sq.setHealth(200);

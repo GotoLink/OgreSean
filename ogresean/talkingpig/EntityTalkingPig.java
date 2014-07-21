@@ -161,7 +161,7 @@ public class EntityTalkingPig extends EntityPig {
 			if (hunger > -6000) {
 				boolean flag = edibleFoods.containsKey(itemstack.getItem());
 				//
-				if (flag == true) {
+				if (flag) {
 					hunger -= edibleFoods.get(itemstack.getItem());
 					entityplayer.inventory.decrStackSize(entityplayer.inventory.currentItem, 1);
 					if (hunger > 3600)
@@ -371,13 +371,9 @@ public class EntityTalkingPig extends EntityPig {
 					motionX = motionX * d1;
 					motionZ = motionZ * d1;
 				}
-				return;
 			} else {
 				super.updateEntityActionState();
-				return;
 			}
-		} else {
-			return;
 		}
 	}
 
@@ -463,7 +459,7 @@ public class EntityTalkingPig extends EntityPig {
 			//gain additional experience for victories
 			if (el.getHealth() < 1)
 				try {
-					experiencePoints += 10 + 2 * ((EntityLiving) (entity.getClass().getConstructor(new Class[] { World.class }).newInstance(new Object[] { worldObj }))).getMaxHealth();
+					experiencePoints += 10 + 2 * ((EntityLiving) (entity.getClass().getConstructor(new Class[] { World.class }).newInstance(worldObj))).getMaxHealth();
 				} catch (Exception e) {
 					experiencePoints += 50;
 				}
@@ -517,7 +513,6 @@ public class EntityTalkingPig extends EntityPig {
 					es.setTarget(null);
 					pals.remove(i);
 					i--;
-					continue;
 				}
 			}
 			//else make pigs attack target
@@ -601,7 +596,7 @@ public class EntityTalkingPig extends EntityPig {
 
 	private void sayHurt(Entity entity) {
 		String str = "";
-		if (!(entity instanceof EntityPlayer) || !((EntityPlayer) entity).getCommandSenderName().equals(getOwnerName())) {
+		if (!(entity instanceof EntityPlayer) || !entity.getCommandSenderName().equals(getOwnerName())) {
 			if (getHealth() > 2 && hunger < 12000) {
 				str = hurtPhrases[rand.nextInt(hurtPhrases.length)].replace("$T$", EntityList.getEntityString(entity));
 			} else

@@ -7,7 +7,7 @@ import net.minecraft.client.gui.GuiTextField;
 import org.lwjgl.input.Keyboard;
 
 public class GUITalkingPig extends GuiScreen {
-	private EntityTalkingPig pig;
+	private final EntityTalkingPig pig;
 	private GuiTextField namefield;
 	private boolean isSaving;
 

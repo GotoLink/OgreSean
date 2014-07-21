@@ -107,7 +107,7 @@ public class OGSEEntityEasyNPC extends EntityCreature implements IMob {
 		//start off with random id num
 		int x = rand.nextInt(acceptedIDs.length);
 		for(int j = x; j < acceptedIDs.length ; j++){
-			if(acceptedIDs[j] == false){
+			if(!acceptedIDs[j]){
 				num = j;
 				break;
 			}

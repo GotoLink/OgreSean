@@ -120,7 +120,7 @@ public class EntityCreeperSwarm extends EntityCreeper {
 
 	@Override
 	public boolean getCanSpawnHere() {
-		if (super.getCanSpawnHere() == true && worldObj.difficultySetting.ordinal() != 0) {
+		if (super.getCanSpawnHere() && worldObj.difficultySetting.ordinal() != 0) {
 			//number to spawn in swarm
 			int swarmNumber;
 			if (worldObj.difficultySetting.ordinal() <= 1) //easy = up to 5 additional creepers
@@ -131,9 +131,7 @@ public class EntityCreeperSwarm extends EntityCreeper {
 				//hard = up to 9 additional creepers
 				swarmNumber = CreeperSwarm.hardMax - 1;
 			//create additional creepers on top of original creeper
-			int i = -1;
-			int j = -1;
-			int k = -1;
+			int i, j, k;
 			for (int i1 = 0; i1 < swarmNumber; i1++) {
 				i = MathHelper.floor_double(posX);// + (double)rand.nextInt(13)) - 6D);
 				j = MathHelper.floor_double(posY);// + (double)rand.nextInt(7)) - 3D);
