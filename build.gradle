@@ -15,12 +15,15 @@ buildscript {
     }
 }
 apply plugin: 'forge'
-minecraft {
-    version = "1.7.10-10.13.0.1184"
-    runDir = "eclipse/assets"
-}
+sourceCompatibility = 1.6
+targetCompatibility = 1.6
 archivesBaseName = "OgreSeanMods"
-version = "0.2"
+version = "0.3"
+minecraft {
+    version = "1.7.10-10.13.2.1230"
+    runDir = "eclipse"
+    replace '$version', version
+}
 sourceSets.main.java{srcDirs project.projectDir.getPath() include("ogresean/**") exclude("ogresean/scriptedsurvivor")}
 sourceSets.main.resources{srcDirs project.projectDir.getPath() include("assets/**" , "*.info", "*.mcmeta")}
 processResources {

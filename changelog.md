@@ -1,3 +1,6 @@
+== OgreSean Mods 0.3 ==
+* Added Easy NPCs
+
 == OgreSean Mods 0.2 ==
 * Added Bats
 * Added Deadly Caves

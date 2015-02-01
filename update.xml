@@ -1,4 +1,11 @@
 <mod modid="ogreseanmods">
+    <mcVersion version="1.7.10">
+        <release type="release" version="0.3"
+                 url="http://www.minecraftforum.net/topic/1651891-/#OgreSean"
+                 download="http://www.mediafire.com/download/bbd031o22lx13m3/OgreSeanMods-0.3(1.7.10).jar"
+                 md5="75CE3EA1A31EA3FCCA54F8516C860B17"
+                />
+    </mcVersion>
     <mcVersion version="1.7.2">
         <release type="release" version="0.2"
                  url="http://www.minecraftforum.net/topic/1651891-/#OgreSean"
